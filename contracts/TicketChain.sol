@@ -41,11 +41,6 @@ contract TicketChain {
     _;
   }
 
-  modifier onlyBuyer() {
-    require(buyers[msg.sender] == true);
-    _;
-  }
-
   function listTicket(uint256 eventId, uint256 ticketId, uint256 price) puclic onlySeller(ticketId) {
   	require(price <= eventTicket.getOriginalPrice(ticketId));
 
@@ -67,8 +62,9 @@ contract TicketChain {
     ticketInfos[ticketId] = 0;
   }
 
-  function buy(uint256 ticketId, uint256 loyalty) public payable {
+  function buyTicket(uint256 ticketId, uint256 loyalty) public payable {
     require(ticketInfos[ticketId] != 0); //is listed
+    require(block.timestamp >= eventTicket.getOpenSaleTime(ticketId) && block.timestamp < eventTicket.getClosingSaleTime(ticketId));
 
     if(loyalty = 0){
       require(msg.value >= (ticketInfos[ticketId].price + comission)); //offerred price meets minimum ask

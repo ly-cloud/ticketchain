@@ -122,5 +122,12 @@ contract EventTicket {
       return tickets[ticketId].originalPrice;
     }
 
+    function getOpenSaleTime(uint256 ticketId) public view returns(uint256) {
+      return tickets[ticketId].openSaleTime;
+    }
+
+    function getClosingSaleTime(uint256 ticketId) public view returns(uint256) {
+      return tickets[ticketId].closingSaleTime;
+    }
 
 }
