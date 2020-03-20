@@ -1,133 +1,153 @@
 pragma solidity ^0.5.0;
 
+import './TicketChain.sol';
+
 contract EventTicket {
-    // a template contract for event organisers to deploy
-    // for each unique event
-
+    address OWNER;
     TicketChain ticketChain;
-    address _owner;
-
-	constructor() public {
-	  _owner = msg.sender;
-	}
+    uint public eventId;
 
     struct Ticket {
-      uint eventId;
-      uint ticketId;
-      uint originalPrice;
-      string eventName;
-      uint eventDateTime;
-	  string venue;
-	  uint seatNumber;
-	  uint openSaleTime;
-  	  uint closingSaleTime;
-  	  address currentOwner;
-  	  address prevOwner;
+        uint ticketId;
+        uint originalPrice;
+        string eventName;
+        uint eventDateTime;
+        string venue;
+        uint seatNumber;
+        uint openSaleTime;
+        uint closingSaleTime;
+        address currOwner;
+        address prevOwner;
     }
 
-    ticket[] tickets;
+    mapping(uint => Ticket) tickets;
+    uint ticketIdCounter;
 
-    mapping (address => bool) organisers;
-    uint nextEventId;
-    mapping (uint => address) eventBy;
-    uint nextTicketId;
+    constructor(TicketChain tcAddress) public {
+        OWNER = msg.sender;
+        ticketChain = tcAddress;
+        eventId = ticketChain.newEvent();
+    }
 
     modifier onlyOwner() {
-      require(_owner == msg.sender);
-      _;
+        require(msg.sender == OWNER);
+        _;
     }
 
-	modifier onlyTicketChain() {
-	  require(ticketChain == msg.sender);
-	  _;
-	}
-
-	modifier onlyOrganiser() {
-	  require(organisers[msg.sender]);
-	  _;
-	}
-
-	function setTicketChain(TicketChain ticketChainAddr) public onlyOwner { // callable by owner
-      ticketChain = ticketChainAddr;
+    modifier onlyTicketChain() {
+        require(msg.sender == address(ticketChain));
+        _;
     }
 
-    // new event
-    function mint(uint256 price, string eventName, uint256 eventDateTime, string venue, uint256 seatNumber, uint256 openSaleTime, uint256 closingSaleTime, uint256 quantity) onlyOrganiser {
-	  for(uint i = 0; i < quantity; i++){
-		Ticket memory newTicket = Ticekt(nextEventId, nextTicketId, price, eventName, eventDateTime, venue, seatNumber, openSaleTime, closingSaleTime, msg.sender, address(0));
-		tickets[nextTicketId] = newTicket;
-		nextTicketId++;
-	  }
-	  eventBy[eventId] = msg.sender;
-
-	  return nextEventId++;
+    modifier onlyTicketOwner(uint ticketId) {
+        require(msg.sender == tickets[ticketId].currOwner);
     }
 
-    // existing event
-    function mint(uint256 eventId, uint256 price, string eventName, uint256 eventDateTime, string venue, uint256 seatNumber, uint256 openSaleTime, uint256 closingSaleTime, uint256 quantity) onlyOrganiser {
-	  for(uint i = 0; i < quantity; i++){
-		Ticket memory newTicket = Ticekt(eventId, nextTicketId, price, eventName, eventDateTime, venue, seatNumber, openSaleTime, closingSaleTime, msg.sender, address(0));
-		tickets[nextTicketId] = newTicket;
-		nextTicketId++;
-	  }
-
-	  return eventId;
+    function isEventTicket() public view returns(bool) {
+        return true;
     }
 
-    // transfer to ticketChain
-    function transfer(uint256 ticketId) public {
-      tickets[ticketId].prevOwner = tickets[ticketId].owner;
-      tickets[ticketId].owner = ticketChain;
+    function mint(
+        uint price,
+        string eventName,
+        uint eventDateTime,
+        string venue,
+        uint seatNumber,
+        uint openSaleTime,
+        uint closingSaleTime
+    ) onlyOwner returns (uint) {
+        ticketIdCounter++;
+        Ticket memory newTicket = Ticket(
+            ticketIdCounter,
+            price,
+            eventName,
+            eventDateTime,
+            venue,
+            seatNumber,
+            openSaleTime,
+            closingSaleTime
+            address(this),
+            address(this)
+        );
+        tickets[ticketId] = newTicket;
+        return newTicket.ticketId;
     }
 
-    // transfer from ticketChain
-    function transferTo(uint256 ticketId, address newOwner) onlyTicketChain public {
-      tickets[ticketId].prevOwner = tickets[ticketId].owner;
-      tickets[ticketId].owner = newOwner;
-    }
-
-    function balanceOf(uint256 eventId) public view returns(uint256) {
-      uint256 counter = 0;
-      for (uint i = 0; i< tickets.length; i++) {
-        if(tickets[i].currentOwner == msg.sender && tickets[i].eventId == eventId) {
-          counter ++;
+    function massMint(
+        uint price,
+        string eventName,
+        uint eventDateTime,
+        string venue,
+        uint seatNumberStart,
+        uint openSaleTime,
+        uint closingSaleTime,
+        uint quantity
+    ) onlyOwner {
+        Ticket memory newTicket;
+        for (uint i = 0; i < quantity; i++) {
+            ticketIdCounter++;
+            newTicket = Ticket(
+                ticketIdCounter,
+                price,
+                eventName,
+                eventDateTime,
+                venue,
+                seatNumberStart + i,
+                openSaleTime,
+                closingSaleTime,
+                address(this),
+                address(this)
+            );
+            tickets[ticketId] = newTicket;
         }
-      }
-      return counter;
     }
 
-    function ownerOf(uint256 ticketId) public view returns(address) {
-      return tickets[ticketId].currentOwner;
+    function transfer(uint ticketId) public onlyTicketOwner(ticketId) {
+        tickets[ticketId].prevOwner = tickets[ticketId].owner;
+        tickets[ticketId].owner = address(ticketChain);
     }
 
-    function refund(uint256 eventId) public onlyOrganiser payable {
-      require(eventBy[eventId] == msg.sender);
-      for (uint i = 0; i< tickets.length; i++) {
-        if(tickets[i].currentOwner != msg.sender && tickets[i].eventId == eventId) {
-          address payable recipient = address(uint160(tickets[i].currentOwner));
-          recipient.transfer(tickets[i].originalPrice);
-        }
-      }
+    function massList() public onlyOwner {
+        // for (uint i = 1; i <= ticketIdCounter; i++) {
+        //     // transfer all tickets in contract to ticketChain
+        //     // call ticketChain to create listing for each
+        // }
     }
 
-    function burn(uint256 ticketId) public onlyOrganiser {
-      delete tickets[ticketId];
+    function transferTo(
+        uint ticketId,
+        address newOwner
+    ) onlyTicketChain onlyTicketOwner(ticketId) public {
+        tickets[ticketId].prevOwner = tickets[ticketId].owner;
+        tickets[ticketId].owner = newOwner;
     }
 
-    function getPrevOwner(uint256 ticketId) public view returns(address) {
-      return tickets[ticketId].prevOwner;
+    function burn(uint ticketId) public onlyOwner {
+        delete tickets[ticketId];
     }
 
-    function getOriginalPrice(uint256 ticketId) public view returns(uint256) {
-      return tickets[ticketId].originalPrice;
+    function getTotalTickets() public view returns(uint) {
+        return ticketIdCounter;
     }
 
-    function getOpenSaleTime(uint256 ticketId) public view returns(uint256) {
-      return tickets[ticketId].openSaleTime;
+    function getCurrOwner(uint ticketId) public view returns(address) {
+        return tickets[ticketId].currOwner;
     }
 
-    function getClosingSaleTime(uint256 ticketId) public view returns(uint256) {
-      return tickets[ticketId].closingSaleTime;
+    function getPrevOwner(uint ticketId) public view returns(address) {
+        return tickets[ticketId].prevOwner;
+    }
+
+    function getOriginalPrice(uint ticketId) public view returns(uint) {
+        return tickets[ticketId].originalPrice;
+    }
+
+    function getOpenSaleTime(uint ticketId) public view returns(uint) {
+        return tickets[ticketId].openSaleTime;
+    }
+
+    function getClosingSaleTime(uint ticketId) public view returns(uint) {
+        return tickets[ticketId].closingSaleTime;
     }
 
 }
