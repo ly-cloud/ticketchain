@@ -30,7 +30,7 @@ contract TicketChain {
         require(msg.sender == OWNER);
         _;
     }
-    
+
     function newEvent() public returns(uint) {
         EventTicket etContract = EventTicket(msg.sender);
         require(etContract.isEventTicket());
@@ -38,57 +38,46 @@ contract TicketChain {
         events[eventIdCounter] = etContract;
         return eventIdCounter;
     }
-    
+
     function list(uint256 eventId, uint256 ticketId, uint256 price) public {
         EventTicket eventTicket = events[eventId];
         require(price <= eventTicket.getOriginalPrice(ticketId));
-        require(msg.sender <= eventTicket.getCurrOwner(ticketId));
+        require(msg.sender == eventTicket.getPrevOwner(ticketId));
+        require(address(this) == eventTicket.getCurrOwner(ticketId));
 
         Listing memory newListing = Listing(msg.sender, price);
         ticketsListing[eventId][ticketId] = newListing;
     }
-    
-    function massList(uint256 eventId, uint256[] memory ticketIds, uint256 price) public {
-        EventTicket eventTicket = events[eventId];
-        require(price <= eventTicket.getOriginalPrice(ticketIds[0]));
-        require(msg.sender <= eventTicket.getCurrOwner(ticketIds[0]));
-        require(!eventTicket.getIsListed());
-        
-        for (uint i=0; i < ticketIds.length; i++) {
-            uint ticketId = ticketIds[i];
-            Listing memory newListing = Listing(msg.sender, price);
-            ticketsListing[eventId][ticketId] = newListing;
-        }
-    }
-    
+
     function updatePrice(uint256 eventId, uint256 ticketId, uint256 newPrice) public {
         EventTicket eventTicket = events[eventId];
         require(msg.sender <= eventTicket.getPrevOwner(ticketId));
 
         ticketsListing[eventId][ticketId].price = newPrice;
     }
-    
+
     function unlist(uint256 eventId, uint256 ticketId) public {
         EventTicket eventTicket = events[eventId];
-        require(msg.sender <= eventTicket.getPrevOwner(ticketId));
-        
+        require(msg.sender == eventTicket.getPrevOwner(ticketId));
+        require(address(this) == eventTicket.getCurrOwner(ticketId));
+
         eventTicket.transferTo(ticketId, msg.sender);
         delete ticketsListing[eventId][ticketId];
     }
-    
+
     function buy(uint256 eventId, uint256 ticketId, uint256 loyalty) public payable {
         EventTicket eventTicket = events[eventId];
-        require(ticketsListing[eventId][ticketId].price < msg.value); 
+        require(ticketsListing[eventId][ticketId].price < msg.value);
         require(block.timestamp >= eventTicket.getOpenSaleTime(ticketId) && block.timestamp < eventTicket.getClosingSaleTime(ticketId));
-        
+
         //without loyalty coin
         address payable recipient = address(uint160(eventTicket.getPrevOwner(ticketId)));
         recipient.transfer(msg.value - commission);
         eventTicket.transferTo(ticketId, msg.sender);
-        
+
         //loyaltyCoin.issuePoint(msg.sender, rate);
     }
-    
+
     function getRedeemRate() public view returns(uint256) {
         return redeemRate;
     }
@@ -117,5 +106,5 @@ contract TicketChain {
         if(msg.sender == OWNER)
         msg.sender.transfer(address(this).balance);
     }
-    
+
 }
