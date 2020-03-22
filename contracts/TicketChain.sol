@@ -1,11 +1,11 @@
 pragma solidity ^0.5.0;
 
 import './EventTicket.sol';
-import './LoyaltyCoin.sol';
+// import './LoyaltyCoin.sol';
 
 contract TicketChain {
     address OWNER;
-    LoyaltyCoin loyaltyCoin;
+    // LoyaltyCoin loyaltyCoin;
     uint commission;
     uint rate;
     uint redeemRate;
@@ -13,14 +13,15 @@ contract TicketChain {
 
     mapping(uint => EventTicket) events;
 
-    constructor(LoyaltyCoin lcAddress) public {
-        loyaltyCoin = lcAddress;
+    constructor() public {
+        // loyaltyCoin = lcAddress;
         OWNER = msg.sender;
     }
 
     struct Listing {
     	address seller;
         uint price;
+        bool listed;
     }
 
     mapping(uint => mapping(uint => Listing)) private ticketsListing;
@@ -28,6 +29,18 @@ contract TicketChain {
 
     modifier onlyOwner() {
         require(msg.sender == OWNER);
+        _;
+    }
+
+    modifier validEvent(uint eventId) {
+        require(eventId <= eventIdCounter);
+        _;
+    }
+
+    modifier onlyTicketOwner(uint eventId, uint ticketId) {
+        EventTicket eventTicket = events[eventId];
+        require(msg.sender == eventTicket.getPrevOwner(ticketId));
+        require(address(this) == eventTicket.getCurrOwner(ticketId));
         _;
     }
 
@@ -39,72 +52,93 @@ contract TicketChain {
         return eventIdCounter;
     }
 
-    function list(uint256 eventId, uint256 ticketId, uint256 price) public {
+    function list(
+        uint eventId,
+        uint ticketId,
+        uint price
+    ) public validEvent(eventId) onlyTicketOwner(eventId, ticketId) {
+        require(!ticketsListing[eventId][ticketId].listed);
         EventTicket eventTicket = events[eventId];
         require(price <= eventTicket.getOriginalPrice(ticketId));
-        require(msg.sender == eventTicket.getPrevOwner(ticketId));
-        require(address(this) == eventTicket.getCurrOwner(ticketId));
 
-        Listing memory newListing = Listing(msg.sender, price);
+        Listing memory newListing = Listing(msg.sender, price, true);
         ticketsListing[eventId][ticketId] = newListing;
     }
 
-    function updatePrice(uint256 eventId, uint256 ticketId, uint256 newPrice) public {
+    function updatePrice(
+        uint eventId,
+        uint ticketId,
+        uint newPrice
+    ) public validEvent(eventId) onlyTicketOwner(eventId, ticketId) {
+        require(ticketsListing[eventId][ticketId].listed);
         EventTicket eventTicket = events[eventId];
-        require(msg.sender <= eventTicket.getPrevOwner(ticketId));
+        require(newPrice <= eventTicket.getOriginalPrice(ticketId));
 
         ticketsListing[eventId][ticketId].price = newPrice;
     }
 
-    function unlist(uint256 eventId, uint256 ticketId) public {
+    function unlist(
+        uint eventId,
+        uint ticketId
+    ) public validEvent(eventId) onlyTicketOwner(eventId, ticketId) {
         EventTicket eventTicket = events[eventId];
-        require(msg.sender == eventTicket.getPrevOwner(ticketId));
-        require(address(this) == eventTicket.getCurrOwner(ticketId));
-
-        eventTicket.transferTo(ticketId, msg.sender);
         delete ticketsListing[eventId][ticketId];
-    }
-
-    function buy(uint256 eventId, uint256 ticketId, uint256 loyalty) public payable {
-        EventTicket eventTicket = events[eventId];
-        require(ticketsListing[eventId][ticketId].price < msg.value);
-        require(block.timestamp >= eventTicket.getOpenSaleTime(ticketId) && block.timestamp < eventTicket.getClosingSaleTime(ticketId));
-
-        //without loyalty coin
-        address payable recipient = address(uint160(eventTicket.getPrevOwner(ticketId)));
-        recipient.transfer(msg.value - commission);
         eventTicket.transferTo(ticketId, msg.sender);
-
-        //loyaltyCoin.issuePoint(msg.sender, rate);
     }
 
-    function getRedeemRate() public view returns(uint256) {
+    function buy(
+        uint eventId,
+        uint ticketId
+        // uint loyalty
+    ) public payable validEvent(eventId) {
+        require(ticketsListing[eventId][ticketId].listed);
+        EventTicket eventTicket = events[eventId];
+        require(msg.value >= ticketsListing[eventId][ticketId].price);
+        require(
+            block.timestamp >= eventTicket.getOpenSaleTime(ticketId)
+            && block.timestamp < eventTicket.getClosingSaleTime(ticketId)
+        );
+
+        address payable recipient = address(
+            uint160(eventTicket.getPrevOwner(ticketId))
+        );
+        eventTicket.transferTo(ticketId, msg.sender);
+        recipient.transfer(msg.value - commission);
+    }
+
+    function getListingPrice(
+        uint eventId,
+        uint ticketId
+    ) public view validEvent(eventId) returns(uint) {
+        require(ticketsListing[eventId][ticketId].listed);
+        return ticketsListing[eventId][ticketId].price;
+    }
+
+    function getRedeemRate() public view returns(uint) {
         return redeemRate;
     }
 
-    function setRedeemRate(uint256 conversion) public onlyOwner {
+    function setRedeemRate(uint conversion) public onlyOwner {
         redeemRate = conversion;
     }
 
-    function getRate() public view returns(uint256) {
+    function getRate() public view returns(uint) {
         return rate;
     }
 
-    function setRate(uint256 amount) public onlyOwner {
+    function setRate(uint amount) public onlyOwner {
         rate = amount;
     }
 
-    function getCommission() public view returns(uint256) {
+    function getCommission() public view returns(uint) {
         return commission;
     }
 
-    function setCommission(uint256 value) public onlyOwner {
+    function setCommission(uint value) public onlyOwner {
         commission = value;
     }
 
-    function withdraw() public {
-        if(msg.sender == OWNER)
+    function withdraw() public onlyOwner {
         msg.sender.transfer(address(this).balance);
     }
-
 }

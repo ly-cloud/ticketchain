@@ -7,6 +7,7 @@ contract EventTicket {
     TicketChain ticketChain;
     uint public eventId;
     bool isListed = false;
+    bool eventIdSet = false;
 
     struct Ticket {
         uint ticketId;
@@ -27,7 +28,6 @@ contract EventTicket {
     constructor(TicketChain tcAddress) public {
         OWNER = msg.sender;
         ticketChain = tcAddress;
-        eventId = ticketChain.newEvent();
     }
 
     modifier onlyOwner() {
@@ -40,7 +40,17 @@ contract EventTicket {
         _;
     }
 
-    function isEventTicket() public view returns(bool) {
+    modifier initialised() {
+        require(eventIdSet);
+        _;
+    }
+
+    function initialise() public onlyOwner returns(uint) {
+        eventId = ticketChain.newEvent();
+        eventIdSet = true;
+    }
+
+    function isEventTicket() public pure returns(bool) {
         return true;
     }
 
@@ -52,7 +62,7 @@ contract EventTicket {
         uint seatNumber,
         uint openSaleTime,
         uint closingSaleTime
-    ) public onlyOwner returns (uint) {
+    ) public onlyOwner initialised returns (uint) {
         require(!isListed);
         ticketIdCounter++;
         Ticket memory newTicket = Ticket(
@@ -64,7 +74,7 @@ contract EventTicket {
             seatNumber,
             openSaleTime,
             closingSaleTime,
-            OWNER,
+            address(this),
             address(this)
         );
         tickets[ticketIdCounter] = newTicket;
@@ -80,7 +90,7 @@ contract EventTicket {
         uint openSaleTime,
         uint closingSaleTime,
         uint quantity
-    ) public onlyOwner {
+    ) public onlyOwner initialised {
         require(!isListed);
         Ticket memory newTicket;
         for (uint i = 0; i < quantity; i++) {
@@ -94,22 +104,22 @@ contract EventTicket {
                 seatNumberStart + i,
                 openSaleTime,
                 closingSaleTime,
-                OWNER,
+                address(this),
                 address(this)
             );
             tickets[ticketIdCounter] = newTicket;
         }
     }
 
-    function transfer(uint ticketId) public onlyTicketOwner(ticketId) {
+    function transfer(uint ticketId) public initialised onlyTicketOwner(ticketId) {
         tickets[ticketId].prevOwner = tickets[ticketId].currOwner;
         tickets[ticketId].currOwner = address(ticketChain);
     }
 
-    function massList() public onlyOwner {
+    function massList() public initialised onlyOwner {
         require(!isListed);
         for (uint i = 1; i <= ticketIdCounter; i++) {
-            transfer(i);
+            tickets[i].currOwner = address(ticketChain);
             ticketChain.list(eventId, i, tickets[i].originalPrice);
         }
         isListed = true;
@@ -118,7 +128,7 @@ contract EventTicket {
     function transferTo(
         uint ticketId,
         address newOwner
-    ) onlyTicketOwner(ticketId) public {
+    ) public initialised onlyTicketOwner(ticketId) {
         require(msg.sender == address(ticketChain));
         tickets[ticketId].prevOwner = tickets[ticketId].currOwner;
         tickets[ticketId].currOwner = newOwner;
