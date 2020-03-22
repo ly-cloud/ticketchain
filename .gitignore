@@ -10,6 +10,7 @@ node_modules
 
 # local env variables
 .env
+.env.development
 
 # truffle build directory
 build/
@@ -19,3 +20,8 @@ build/
 
 # IntelliJ IDE
 .idea
+
+# Don't check auto-generated stuff into git
+coverage
+build
+stats.json
