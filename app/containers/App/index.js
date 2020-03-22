@@ -73,6 +73,11 @@ export function App(props) {
     onLoadAccounts(accounts);
   };
 
+  // Event that notifies whenever the account/address in metamask change
+  window.ethereum.on('accountsChanged', accounts => {
+    onLoadAccounts(accounts);
+  });
+
   const { accounts } = props;
   const { onLoadAccounts } = props;
 
