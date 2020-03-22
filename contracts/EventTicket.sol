@@ -45,6 +45,8 @@ contract EventTicket {
         _;
     }
 
+    function() external payable {}
+
     function initialise() public onlyOwner returns(uint) {
         eventId = ticketChain.newEvent();
         eventIdSet = true;
@@ -136,6 +138,10 @@ contract EventTicket {
 
     function burn(uint ticketId) public onlyOwner {
         delete tickets[ticketId];
+    }
+
+    function withdraw() public onlyOwner {
+        msg.sender.transfer(address(this).balance);
     }
 
     function getTotalTickets() public view returns(uint) {
