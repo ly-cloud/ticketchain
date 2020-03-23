@@ -17,4 +17,21 @@ const makeSelectLoadAccounts = () =>
     substate => substate.accounts,
   );
 
-export { makeSelectLocation, makeSelectLoadAccounts };
+const makeSelectLoadNetworkId = () =>
+  createSelector(
+    selectAppDomain,
+    substate => substate.networkId,
+  );
+
+const makeSelectOnWeb3Provider = () =>
+  createSelector(
+    selectAppDomain,
+    substate => substate.onWeb3Provider,
+  );
+
+export {
+  makeSelectLocation,
+  makeSelectLoadAccounts,
+  makeSelectLoadNetworkId,
+  makeSelectOnWeb3Provider,
+};

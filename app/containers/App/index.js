@@ -26,15 +26,19 @@ import LoginPage from 'containers/LoginPage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
+import ConnectionBanner from '@rimble/connection-banner';
 
 import reducer from './reducer';
-
 // Import ABIs
 // import TicketChain from '../../../build/contracts/TicketChain.json';
 
 import GlobalStyle from '../../global-styles';
-import { makeSelectLoadAccounts } from './selectors';
-import { loadAccounts } from './actions';
+import {
+  makeSelectLoadAccounts,
+  makeSelectLoadNetworkId,
+  makeSelectOnWeb3Provider,
+} from './selectors';
+import { loadAccounts, loadNetworkId, changeOnWeb3Provider } from './actions';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -47,39 +51,47 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const loadWeb3 = async () => {
-  if (window.ethereum) {
-    window.web3 = new Web3(window.ethereum);
-    await window.ethereum.enable();
-  } else if (window.web3) {
-    window.web3 = new Web3(window.web3.currentProvider);
-  } else {
-    window.alert(
-      'Non-Ethereum browser detected. You should consider trying MetaMask!',
-    );
-  }
-};
-
 export function App(props) {
   useEffect(() => {
     loadWeb3();
     loadBlockchainData();
   }, []);
 
+  const loadWeb3 = async () => {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      await window.ethereum.enable();
+    } else if (window.web3) {
+      window.web3 = new Web3(window.web3.currentProvider);
+    } else {
+      onChangeWeb3Provider(false);
+      // window.alert(
+      //   'Non-Ethereum browser detected. You should consider trying MetaMask!',
+      // );
+    }
+  };
+
   const loadBlockchainData = async () => {
     const { web3 } = window;
-    // Load account
-    const accounts = await web3.eth.getAccounts();
-    onLoadAccounts(accounts);
+    if (web3) {
+      // Load account
+      const accounts = await web3.eth.getAccounts();
+      onLoadAccounts(accounts);
+      // Load NetworkId
+      const networkId = await web3.eth.net.getId();
+      onLoadNetworkId(networkId);
+    }
   };
 
   // Event that notifies whenever the account/address in metamask change
-  window.ethereum.on('accountsChanged', accounts => {
-    onLoadAccounts(accounts);
-  });
+  if (window.ethereum) {
+    window.ethereum.on('accountsChanged', accounts => {
+      onLoadAccounts(accounts);
+    });
+  }
 
-  const { accounts } = props;
-  const { onLoadAccounts } = props;
+  const { accounts, networkId, onWeb3Provider } = props;
+  const { onLoadAccounts, onLoadNetworkId, onChangeWeb3Provider } = props;
 
   useInjectReducer({ key: 'app', reducer });
 
@@ -87,6 +99,11 @@ export function App(props) {
   return (
     <div className={classes.container}>
       <Header account={accounts[0]} />
+      <ConnectionBanner
+        currentNetwork={networkId}
+        requiredNetwork={1}
+        onWeb3Fallback={!onWeb3Provider} //	True to display install metamask message
+      />
       <ToastContainer
         enableMultiContainer
         containerId="default"
@@ -122,16 +139,25 @@ export function App(props) {
 
 App.propTypes = {
   accounts: PropTypes.arrayOf(String),
+  networkId: PropTypes.number,
+  onWeb3Provider: PropTypes.bool,
   onLoadAccounts: PropTypes.func,
+  onLoadNetworkId: PropTypes.func,
+  onChangeWeb3Provider: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
   accounts: makeSelectLoadAccounts(),
+  networkId: makeSelectLoadNetworkId(),
+  onWeb3Provider: makeSelectOnWeb3Provider(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
     onLoadAccounts: accounts => dispatch(loadAccounts(accounts)),
+    onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
+    onChangeWeb3Provider: onWeb3Provider =>
+      dispatch(changeOnWeb3Provider(onWeb3Provider)),
   };
 }
 
