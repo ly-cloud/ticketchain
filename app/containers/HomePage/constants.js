@@ -4,4 +4,4 @@
  *
  */
 
-export const LOAD_ACCOUNTS = 'app/HomePage/LOAD_ACCOUNTS';
+export const LOAD_NETWORKID = 'app/HomePage/LOAD_NETWORKID';

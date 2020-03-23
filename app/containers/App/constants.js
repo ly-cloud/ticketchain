@@ -10,3 +10,5 @@
  */
 
 export const LOAD_ACCOUNTS = 'app/App/LOAD_ACCOUNTS';
+export const LOAD_NETWORKID = 'app/App/LOAD_NETWORKID';
+export const CHANGE_ONWEB3PROVIDER = 'app/App/ON_WEB3PROVIDER';

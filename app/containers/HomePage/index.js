@@ -24,10 +24,10 @@ import Container from '@material-ui/core/Container';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
-import { makeSelectLoadAccounts } from './selectors';
+import { makeSelectLoadNetworkId } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { loadAccounts } from './actions';
+import { loadNetworkId } from './actions';
 
 const useStyles = makeStyles(theme => ({
   icon: {
@@ -66,16 +66,14 @@ export function HomePage(props) {
 
   const loadBlockchainData = async () => {
     const { web3 } = window;
-    // Load account
-    const accounts = await web3.eth.getAccounts();
-    onLoadAccounts(accounts);
+    // Load NetworkId
+    const networkId = await web3.eth.net.getId();
+    onLoadNetworkId(networkId);
   };
 
-  const { accounts } = props;
-  // TODO: Remove
-  console.log(accounts);
-
-  const { onLoadAccounts } = props;
+  // TODO: Can be removed
+  const { networkId } = props;
+  const { onLoadNetworkId } = props;
 
   useInjectReducer({ key: 'homePage', reducer });
   useInjectSaga({ key: 'homePage', saga });
@@ -165,17 +163,17 @@ export function HomePage(props) {
 }
 
 HomePage.propTypes = {
-  accounts: PropTypes.arrayOf(String),
-  onLoadAccounts: PropTypes.func,
+  networkId: PropTypes.number,
+  onLoadNetworkId: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
-  accounts: makeSelectLoadAccounts(),
+  networkId: makeSelectLoadNetworkId(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    onLoadAccounts: accounts => dispatch(loadAccounts(accounts)),
+    onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
   };
 }
 

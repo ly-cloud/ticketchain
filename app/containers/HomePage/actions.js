@@ -4,11 +4,11 @@
  *
  */
 
-import { LOAD_ACCOUNTS } from './constants';
+import { LOAD_NETWORKID } from './constants';
 
-export function loadAccounts(accounts) {
+export function loadNetworkId(networkId) {
   return {
-    type: LOAD_ACCOUNTS,
-    accounts,
+    type: LOAD_NETWORKID,
+    networkId,
   };
 }
