@@ -27,11 +27,13 @@ import Container from '@material-ui/core/Container';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
+import Web3 from 'web3';
 import {
   makeSelectEmail,
   makeSelectPassword,
   makeSelectIsSubmitted,
   makeSelectErrorText,
+  makeSelectPublicAddress,
 } from './selectors';
 import {
   login,
@@ -39,7 +41,10 @@ import {
   changePassword,
   changeIsSubmitted,
   changeErrorText,
+  loginMetamask,
 } from './actions';
+import { loadNetworkId } from '../App/actions';
+import { makeSelectLoadNetworkId } from '../App/selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -64,10 +69,14 @@ const useStyles = makeStyles(theme => ({
   link: {
     textDecoration: 'none',
   },
+  metamask: {
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 export function LoginPage(props) {
   useEffect(() => {}, []);
+
   const { email, password, isSubmitted, errorText } = props;
   const {
     onChangeEmail,
@@ -75,6 +84,9 @@ export function LoginPage(props) {
     onChangeIsSubmitted,
     onChangeErrorText,
     onLogin,
+    onMetamaskLogin,
+    onLoadNetworkId,
+    onChangeWeb3Provider,
   } = props;
 
   useInjectReducer({ key: 'loginPage', reducer });
@@ -104,6 +116,24 @@ export function LoginPage(props) {
       return;
     }
     onLogin();
+  }
+
+  async function onHandleMetamaskLogin() {
+    if (window.ethereum) {
+      window.web3 = await new Web3(window.ethereum);
+      await window.ethereum.enable();
+    } else if (window.web3) {
+      window.web3 = await new Web3(window.web3.currentProvider);
+    } else {
+      onChangeWeb3Provider(false);
+    }
+    const { web3 } = window;
+    // Get the active address that Metamask is using
+    const publicAddress = await web3.eth.getCoinbase();
+    onMetamaskLogin(publicAddress);
+    // Get networkId
+    const networkId = await web3.eth.net.getId();
+    onLoadNetworkId(networkId);
   }
 
   return (
@@ -166,6 +196,15 @@ export function LoginPage(props) {
             >
               Login
             </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.metamask}
+              onClick={onHandleMetamaskLogin}
+            >
+              Login with Metamask
+            </Button>
             <Grid container>
               <Grid item xs>
                 <Link to="/" variant="body2" className={classes.link}>
@@ -196,6 +235,9 @@ LoginPage.propTypes = {
   onChangeIsSubmitted: PropTypes.func,
   onChangeErrorText: PropTypes.func,
   onLogin: PropTypes.func,
+  onMetamaskLogin: PropTypes.func,
+  onLoadNetworkId: PropTypes.func,
+  onChangeWeb3Provider: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -203,6 +245,8 @@ const mapStateToProps = createStructuredSelector({
   password: makeSelectPassword(),
   isSubmitted: makeSelectIsSubmitted(),
   errorText: makeSelectErrorText(),
+  publicAddress: makeSelectPublicAddress(),
+  networkId: makeSelectLoadNetworkId(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -216,6 +260,8 @@ function mapDispatchToProps(dispatch) {
       if (evt !== undefined && evt.preventDefault) evt.preventDefault();
       dispatch(login());
     },
+    onMetamaskLogin: publicAddress => dispatch(loginMetamask(publicAddress)),
+    onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
   };
 }
 

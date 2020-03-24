@@ -5,17 +5,17 @@
  */
 
 import {
-  LOAD_ACCOUNTS,
+  // LOAD_ACCOUNTS,
   LOAD_NETWORKID,
   CHANGE_ONWEB3PROVIDER,
 } from './constants';
 
-export function loadAccounts(accounts) {
-  return {
-    type: LOAD_ACCOUNTS,
-    accounts,
-  };
-}
+// export function loadAccounts(accounts) {
+//   return {
+//     type: LOAD_ACCOUNTS,
+//     accounts,
+//   };
+// }
 
 export function loadNetworkId(networkId) {
   return {
