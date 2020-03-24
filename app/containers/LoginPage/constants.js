@@ -11,3 +11,5 @@ export const CHANGE_ERRORTEXT = 'app/LoginPage/CHANGE_ERRORTEXT';
 export const LOGIN = 'app/LoginPage/LOGIN';
 export const LOGIN_SUCCESS = 'app/LoginPage/LOGIN_SUCCESS';
 export const LOGIN_ERROR = 'app/LoginPage/LOGIN_ERROR';
+export const LOGIN_METAMASK = 'app/LoginPage/LOGIN_METAMASK';
+export const SIGN_MESSAGE = 'app/LoginPage/SIGN_MESSAGE';

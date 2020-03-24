@@ -69,6 +69,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/styles": "^4.9.0",
     "@rimble/connection-banner": "^1.2.3",
+    "axios": "^0.19.2",
     "chalk": "^2.4.2",
     "compression": "1.7.4",
     "connected-react-router": "6.4.0",
