@@ -6,18 +6,18 @@ contract EventTicket {
     address OWNER;
     TicketChain ticketChain;
     uint public eventId;
+    string public eventName;
+    uint public eventDateTime;
+    string public venue;
+    uint public openSaleTime;
+    uint public closingSaleTime;
     bool isListed = false;
     bool eventIdSet = false;
 
     struct Ticket {
         uint ticketId;
         uint originalPrice;
-        string eventName;
-        uint eventDateTime;
-        string venue;
         uint seatNumber;
-        uint openSaleTime;
-        uint closingSaleTime;
         address currOwner;
         address prevOwner;
     }
@@ -25,9 +25,23 @@ contract EventTicket {
     mapping(uint => Ticket) tickets;
     uint ticketIdCounter;
 
-    constructor(TicketChain tcAddress) public {
+    constructor(
+        TicketChain _ticketChain,
+        string memory _eventName,
+        uint _eventDateTime,
+        string memory _venue,
+        uint _openSaleTime,
+        uint _closingSaleTime
+    )
+        public
+    {
         OWNER = msg.sender;
-        ticketChain = tcAddress;
+        ticketChain = _ticketChain;
+        eventName = _eventName;
+        eventDateTime = _eventDateTime;
+        venue = _venue;
+        openSaleTime = _openSaleTime;
+        closingSaleTime = _closingSaleTime;
     }
 
     modifier onlyOwner() {
@@ -47,35 +61,27 @@ contract EventTicket {
 
     function() external payable {}
 
-    function initialise() public onlyOwner returns(uint) {
+    function initialise() public onlyOwner returns (uint) {
         eventId = ticketChain.newEvent();
         eventIdSet = true;
     }
 
-    function isEventTicket() public pure returns(bool) {
+    function isEventTicket() public pure returns (bool) {
         return true;
     }
 
-    function mint(
-        uint price,
-        string memory eventName,
-        uint eventDateTime,
-        string memory venue,
-        uint seatNumber,
-        uint openSaleTime,
-        uint closingSaleTime
-    ) public onlyOwner initialised returns (uint) {
+    function mint(uint price, uint seatNumber)
+        public
+        onlyOwner
+        initialised
+        returns (uint)
+    {
         require(!isListed);
         ticketIdCounter++;
         Ticket memory newTicket = Ticket(
             ticketIdCounter,
             price,
-            eventName,
-            eventDateTime,
-            venue,
             seatNumber,
-            openSaleTime,
-            closingSaleTime,
             address(this),
             address(this)
         );
@@ -83,16 +89,11 @@ contract EventTicket {
         return newTicket.ticketId;
     }
 
-    function massMint(
-        uint price,
-        string memory eventName,
-        uint eventDateTime,
-        string memory venue,
-        uint seatNumberStart,
-        uint openSaleTime,
-        uint closingSaleTime,
-        uint quantity
-    ) public onlyOwner initialised {
+    function massMint(uint price, uint seatNumberStart, uint quantity)
+        public
+        onlyOwner
+        initialised
+    {
         require(!isListed);
         Ticket memory newTicket;
         for (uint i = 0; i < quantity; i++) {
@@ -100,12 +101,7 @@ contract EventTicket {
             newTicket = Ticket(
                 ticketIdCounter,
                 price,
-                eventName,
-                eventDateTime,
-                venue,
                 seatNumberStart + i,
-                openSaleTime,
-                closingSaleTime,
                 address(this),
                 address(this)
             );
@@ -113,7 +109,11 @@ contract EventTicket {
         }
     }
 
-    function transfer(uint ticketId) public initialised onlyTicketOwner(ticketId) {
+    function transfer(uint ticketId)
+        public
+        initialised
+        onlyTicketOwner(ticketId)
+    {
         tickets[ticketId].prevOwner = tickets[ticketId].currOwner;
         tickets[ticketId].currOwner = address(ticketChain);
     }
@@ -127,10 +127,11 @@ contract EventTicket {
         isListed = true;
     }
 
-    function transferTo(
-        uint ticketId,
-        address newOwner
-    ) public initialised onlyTicketOwner(ticketId) {
+    function transferTo(uint ticketId, address newOwner)
+        public
+        initialised
+        onlyTicketOwner(ticketId)
+    {
         require(msg.sender == address(ticketChain));
         tickets[ticketId].prevOwner = tickets[ticketId].currOwner;
         tickets[ticketId].currOwner = newOwner;
@@ -144,27 +145,63 @@ contract EventTicket {
         msg.sender.transfer(address(this).balance);
     }
 
-    function getTotalTickets() public view returns(uint) {
+    function updateEventName(string memory _eventName) public onlyOwner {
+        require(!isListed);
+        eventName = _eventName;
+    }
+
+    function updateEventDateTime(uint _eventDateTime) public onlyOwner {
+        require(!isListed);
+        eventDateTime = _eventDateTime;
+    }
+
+    function updateVenue(string memory _venue) public onlyOwner {
+        require(!isListed);
+        venue = _venue;
+    }
+
+    function updateOpenSaleTime(uint _openSaleTime) public onlyOwner {
+        require(!isListed);
+        openSaleTime = _openSaleTime;
+    }
+
+    function updateClosingSaleTime(uint _closingSaleTime) public onlyOwner {
+        require(!isListed);
+        closingSaleTime = _closingSaleTime;
+    }
+
+    function getTotalTickets() public view returns (uint) {
         return ticketIdCounter;
     }
 
-    function getCurrOwner(uint ticketId) public view returns(address) {
+    function getCurrOwner(uint ticketId) public view returns (address) {
         return tickets[ticketId].currOwner;
     }
 
-    function getPrevOwner(uint ticketId) public view returns(address) {
+    function getPrevOwner(uint ticketId) public view returns (address) {
         return tickets[ticketId].prevOwner;
     }
 
-    function getOriginalPrice(uint ticketId) public view returns(uint) {
+    function getOriginalPrice(uint ticketId) public view returns (uint) {
         return tickets[ticketId].originalPrice;
     }
 
-    function getOpenSaleTime(uint ticketId) public view returns(uint) {
-        return tickets[ticketId].openSaleTime;
-    }
-
-    function getClosingSaleTime(uint ticketId) public view returns(uint) {
-        return tickets[ticketId].closingSaleTime;
+    function getTicket(uint _ticketId) public view
+        returns (
+            uint ticketId,
+            uint originalPrice,
+            uint seatNumber,
+            address currOwner,
+            address prevOwner
+        )
+    {
+        Ticket memory ticket = tickets[_ticketId];
+        return (
+            ticket.ticketId,
+            ticket.originalPrice,
+            ticket.seatNumber,
+            ticket.currOwner,
+            ticket.prevOwner
+        );
     }
 }
