@@ -12,6 +12,9 @@ import {
   LOGIN,
   LOGIN_SUCCESS,
   LOGIN_ERROR,
+  LOGIN_METAMASK,
+  SIGN_MESSAGE,
+  HANDLE_AUTHENTICATE,
 } from './constants';
 
 export const initialState = {
@@ -19,6 +22,9 @@ export const initialState = {
   password: '',
   isSubmitted: false,
   errorText: '',
+  publicAddress: '',
+  nonce: '',
+  signature: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -46,6 +52,14 @@ const loginPageReducer = (state = initialState, action) =>
         break;
       case LOGIN_ERROR:
         break;
+      case LOGIN_METAMASK:
+        draft.publicAddress = action.publicAddress;
+        break;
+      case SIGN_MESSAGE:
+        draft.nonce = action.nonce;
+        break;
+      case HANDLE_AUTHENTICATE:
+        draft.signature = action.signature;
     }
   });
 

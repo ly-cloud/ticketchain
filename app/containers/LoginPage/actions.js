@@ -14,6 +14,9 @@ import {
   LOGIN,
   LOGIN_SUCCESS,
   LOGIN_ERROR,
+  LOGIN_METAMASK,
+  SIGN_MESSAGE,
+  HANDLE_AUTHENTICATE,
 } from './constants';
 let loginToastId = null;
 
@@ -75,5 +78,26 @@ export function loginError(error) {
   return {
     type: LOGIN_ERROR,
     error,
+  };
+}
+
+export function loginMetamask(publicAddress) {
+  return {
+    type: LOGIN_METAMASK,
+    publicAddress,
+  };
+}
+
+export function signMessage(nonce) {
+  return {
+    type: SIGN_MESSAGE,
+    nonce,
+  };
+}
+
+export function handleAuthentication(signature) {
+  return {
+    type: HANDLE_AUTHENTICATE,
+    signature,
   };
 }
