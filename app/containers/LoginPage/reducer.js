@@ -14,6 +14,7 @@ import {
   LOGIN_ERROR,
   LOGIN_METAMASK,
   SIGN_MESSAGE,
+  HANDLE_AUTHENTICATE,
 } from './constants';
 
 export const initialState = {
@@ -23,6 +24,7 @@ export const initialState = {
   errorText: '',
   publicAddress: '',
   nonce: '',
+  signature: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -56,6 +58,8 @@ const loginPageReducer = (state = initialState, action) =>
       case SIGN_MESSAGE:
         draft.nonce = action.nonce;
         break;
+      case HANDLE_AUTHENTICATE:
+        draft.signature = action.signature;
     }
   });
 

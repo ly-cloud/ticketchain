@@ -16,6 +16,7 @@ import {
   LOGIN_ERROR,
   LOGIN_METAMASK,
   SIGN_MESSAGE,
+  HANDLE_AUTHENTICATE,
 } from './constants';
 let loginToastId = null;
 
@@ -94,4 +95,9 @@ export function signMessage(nonce) {
   };
 }
 
-export function handleAuthentication() {}
+export function handleAuthentication(signature) {
+  return {
+    type: HANDLE_AUTHENTICATE,
+    signature,
+  };
+}

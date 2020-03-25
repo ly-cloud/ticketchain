@@ -1,12 +1,23 @@
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import request from 'utils/request';
-import { LOGIN, LOGIN_METAMASK, SIGN_MESSAGE } from './constants';
-import { loginSuccess, loginError, signMessage } from './actions';
+import {
+  LOGIN,
+  LOGIN_METAMASK,
+  SIGN_MESSAGE,
+  HANDLE_AUTHENTICATE,
+} from './constants';
+import {
+  loginSuccess,
+  loginError,
+  signMessage,
+  handleAuthentication,
+} from './actions';
 import {
   makeSelectEmail,
   makeSelectPassword,
   makeSelectPublicAddress,
   makeSelectNonce,
+  makeSelectSignature,
 } from './selectors';
 import * as api from '../../utils/apiManager';
 
@@ -45,8 +56,7 @@ export function* loginMetamask() {
     const res = yield call(api.getUserDataByAddress, publicAddress);
     yield put(signMessage(res.data.user.nonce));
   } catch (err) {
-    const errRes = yield err.response.json();
-    yield put(loginError(errRes));
+    yield put(loginError(err.response.data));
   }
 }
 
@@ -59,9 +69,20 @@ export function* signMessageWithAddress() {
       web3.eth.personal.sign,
       ...[message, publicAddress],
     );
-    console.log(signature);
+    yield put(handleAuthentication(signature, publicAddress));
   } catch (err) {
-    console.log(err);
+    yield put(loginError(err.response.data));
+  }
+}
+
+export function* backendAuthentication() {
+  const publicAddress = yield select(makeSelectPublicAddress());
+  const signature = yield select(makeSelectSignature());
+  try {
+    const res = yield call(api.authenticateUser, ...[signature, publicAddress]);
+    console.log(res);
+  } catch (err) {
+    yield put(loginError(err.response.data));
   }
 }
 
@@ -69,4 +90,5 @@ export default function* loginPageSaga() {
   yield takeLatest(LOGIN, login);
   yield takeLatest(LOGIN_METAMASK, loginMetamask);
   yield takeLatest(SIGN_MESSAGE, signMessageWithAddress);
+  yield takeLatest(HANDLE_AUTHENTICATE, backendAuthentication);
 }

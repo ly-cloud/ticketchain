@@ -47,6 +47,12 @@ const makeSelectNonce = () =>
     substate => substate.nonce,
   );
 
+const makeSelectSignature = () =>
+  createSelector(
+    selectLoginPageDomain,
+    substate => substate.signature,
+  );
+
 /**
  * Default selector used by LoginPage
  */
@@ -66,4 +72,5 @@ export {
   makeSelectErrorText,
   makeSelectPublicAddress,
   makeSelectNonce,
+  makeSelectSignature,
 };
