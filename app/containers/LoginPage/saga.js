@@ -1,54 +1,26 @@
 import { takeLatest, call, put, select } from 'redux-saga/effects';
-import request from 'utils/request';
 import {
-  LOGIN,
   LOGIN_METAMASK,
   SIGN_MESSAGE,
   HANDLE_AUTHENTICATE,
+  SIGNUP,
 } from './constants';
 import {
   loginSuccess,
   loginError,
   signMessage,
   handleAuthentication,
+  toggleSignUpModal,
 } from './actions';
 import {
-  makeSelectEmail,
-  makeSelectPassword,
   makeSelectPublicAddress,
   makeSelectNonce,
   makeSelectSignature,
+  makeSelectRole,
 } from './selectors';
 import * as api from '../../utils/apiManager';
 
 const { web3 } = window;
-
-export function* login() {
-  // Select email from store
-  const email = yield select(makeSelectEmail());
-  // Select password from store
-  const password = yield select(makeSelectPassword());
-
-  const requestURL = `${process.env.BACKEND_API_URL}/login`;
-
-  try {
-    const res = yield call(request, requestURL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        // Authorization: `Bearer ${cookies.get('token')}`,
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-    yield put(loginSuccess(res));
-  } catch (err) {
-    const errRes = yield err.response.json();
-    yield put(loginError(errRes));
-  }
-}
 
 export function* loginMetamask() {
   const publicAddress = yield select(makeSelectPublicAddress());
@@ -80,15 +52,27 @@ export function* backendAuthentication() {
   const signature = yield select(makeSelectSignature());
   try {
     const res = yield call(api.authenticateUser, ...[signature, publicAddress]);
-    console.log(res);
+    yield put(loginSuccess(res.data));
+  } catch (err) {
+    yield put(loginError(err.response.data));
+  }
+}
+
+export function* backendSignUp() {
+  const publicAddress = yield select(makeSelectPublicAddress());
+  const role = yield select(makeSelectRole());
+  try {
+    yield put(toggleSignUpModal(false));
+    const res = yield call(api.userSignUp, ...[publicAddress, role]);
+    yield put(loginSuccess(res.data));
   } catch (err) {
     yield put(loginError(err.response.data));
   }
 }
 
 export default function* loginPageSaga() {
-  yield takeLatest(LOGIN, login);
   yield takeLatest(LOGIN_METAMASK, loginMetamask);
   yield takeLatest(SIGN_MESSAGE, signMessageWithAddress);
   yield takeLatest(HANDLE_AUTHENTICATE, backendAuthentication);
+  yield takeLatest(SIGNUP, backendSignUp);
 }

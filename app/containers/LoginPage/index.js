@@ -6,7 +6,6 @@
 
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
@@ -14,12 +13,13 @@ import { compose } from 'redux';
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Grid from '@material-ui/core/Grid';
-import Box from '@material-ui/core/Box';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -29,20 +29,11 @@ import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import Web3 from 'web3';
 import {
-  makeSelectEmail,
-  makeSelectPassword,
-  makeSelectIsSubmitted,
-  makeSelectErrorText,
   makeSelectPublicAddress,
+  makeSelectSignUpModal,
+  makeSelectRole,
 } from './selectors';
-import {
-  login,
-  changeEmail,
-  changePassword,
-  changeIsSubmitted,
-  changeErrorText,
-  loginMetamask,
-} from './actions';
+import { loginMetamask, toggleSignUpModal, signUp } from './actions';
 import { loadNetworkId } from '../App/actions';
 import { makeSelectLoadNetworkId } from '../App/selectors';
 import reducer from './reducer';
@@ -54,6 +45,8 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    height: '50vh',
+    justifyContent: 'center',
   },
   avatar: {
     margin: theme.spacing(1),
@@ -71,22 +64,20 @@ const useStyles = makeStyles(theme => ({
   },
   metamask: {
     marginBottom: theme.spacing(1),
+    width: '80%',
   },
 }));
 
 export function LoginPage(props) {
   useEffect(() => {}, []);
 
-  const { email, password, isSubmitted, errorText } = props;
+  const { signUpModal } = props;
   const {
-    onChangeEmail,
-    onChangePassword,
-    onChangeIsSubmitted,
-    onChangeErrorText,
-    onLogin,
     onMetamaskLogin,
     onLoadNetworkId,
     onChangeWeb3Provider,
+    onToggleSignUpModal,
+    onMetamaskSignUp,
   } = props;
 
   useInjectReducer({ key: 'loginPage', reducer });
@@ -94,31 +85,7 @@ export function LoginPage(props) {
 
   const classes = useStyles();
 
-  const regexEmail = new RegExp(
-    '^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$',
-  );
-
-  function onHandleChangeEmail(evt) {
-    if (!evt.target.value) {
-      onChangeErrorText('Email is required!');
-    } else if (!regexEmail.test(evt.target.value)) {
-      onChangeErrorText('Please enter a valid email');
-    } else {
-      onChangeErrorText('');
-    }
-    onChangeEmail(evt.target.value);
-  }
-
-  function onHandleSubmit(event) {
-    event.preventDefault();
-    onChangeIsSubmitted(true);
-    if (!email || !regexEmail.test(email) || !password) {
-      return;
-    }
-    onLogin();
-  }
-
-  async function onHandleMetamaskLogin() {
+  async function loadWeb3() {
     if (window.ethereum) {
       window.web3 = await new Web3(window.ethereum);
       await window.ethereum.enable();
@@ -128,12 +95,31 @@ export function LoginPage(props) {
       onChangeWeb3Provider(false);
     }
     const { web3 } = window;
+    return web3;
+  }
+
+  async function onHandleMetamaskLogin() {
+    const web3 = await loadWeb3();
     // Get the active address that Metamask is using
     const publicAddress = await web3.eth.getCoinbase();
     onMetamaskLogin(publicAddress);
     // Get networkId
     const networkId = await web3.eth.net.getId();
     onLoadNetworkId(networkId);
+  }
+
+  async function onHandleSignUp(role) {
+    const web3 = await loadWeb3();
+    const publicAddress = await web3.eth.getCoinbase();
+    onMetamaskSignUp(publicAddress, role);
+  }
+
+  function openCloseSignUpModel() {
+    if (signUpModal) {
+      onToggleSignUpModal(false);
+    } else {
+      onToggleSignUpModal(true);
+    }
   }
 
   return (
@@ -144,124 +130,85 @@ export function LoginPage(props) {
       </Helmet>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
-        <div className={classes.paper}>
+        <Paper className={classes.paper} elevation={3}>
           <Avatar className={classes.avatar}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Login
           </Typography>
-          <form className={classes.form} noValidate onSubmit={onHandleSubmit}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              onChange={onHandleChangeEmail}
-              error={isSubmitted && (!email || !regexEmail.test(email))}
-              helperText={!isSubmitted ? '' : errorText}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={onChangePassword}
-              error={isSubmitted && !password}
-              helperText={
-                // eslint-disable-next-line no-nested-ternary
-                !isSubmitted ? '' : password ? '' : 'Password is required!'
-              }
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.metamask}
+            onClick={onHandleMetamaskLogin}
+          >
+            Login with Metamask
+          </Button>
+          <Container onClick={openCloseSignUpModel}>
+            {"Don't have an account? Sign Up"}
+          </Container>
+        </Paper>
+        <Dialog
+          open={signUpModal}
+          onClose={openCloseSignUpModel}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Sign Up</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              We only accept sign up using MetaMask. Please have a MetaMask
+              account and MetaMask browser installed before signing up. Select
+              the options below to sign up!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
             <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Login
-            </Button>
-            <Button
-              fullWidth
               variant="contained"
               color="primary"
               className={classes.metamask}
-              onClick={onHandleMetamaskLogin}
+              onClick={() => onHandleSignUp('customer')}
             >
-              Login with Metamask
+              As a Customer
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link to="/" variant="body2" className={classes.link}>
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link to="/" variant="body2" className={classes.link}>
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </form>
-        </div>
-        <Box mt={8} />
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.metamask}
+              onClick={() => onHandleSignUp('event organiser')}
+            >
+              As an Event Organiser
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </React.Fragment>
   );
 }
 
 LoginPage.propTypes = {
-  email: PropTypes.string,
-  password: PropTypes.string,
-  isSubmitted: PropTypes.bool,
-  errorText: PropTypes.string,
-  onChangeEmail: PropTypes.func,
-  onChangePassword: PropTypes.func,
-  onChangeIsSubmitted: PropTypes.func,
-  onChangeErrorText: PropTypes.func,
-  onLogin: PropTypes.func,
+  signUpModal: PropTypes.bool,
   onMetamaskLogin: PropTypes.func,
   onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
+  onToggleSignUpModal: PropTypes.func,
+  onMetamaskSignUp: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
-  email: makeSelectEmail(),
-  password: makeSelectPassword(),
-  isSubmitted: makeSelectIsSubmitted(),
-  errorText: makeSelectErrorText(),
   publicAddress: makeSelectPublicAddress(),
   networkId: makeSelectLoadNetworkId(),
+  signUpModal: makeSelectSignUpModal(),
+  role: makeSelectRole(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    onChangeEmail: email => dispatch(changeEmail(email)),
-    onChangePassword: evt => dispatch(changePassword(evt.target.value)),
-    onChangeIsSubmitted: isSubmitted =>
-      dispatch(changeIsSubmitted(isSubmitted)),
-    onChangeErrorText: errorText => dispatch(changeErrorText(errorText)),
-    onLogin: evt => {
-      if (evt !== undefined && evt.preventDefault) evt.preventDefault();
-      dispatch(login());
-    },
     onMetamaskLogin: publicAddress => dispatch(loginMetamask(publicAddress)),
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
+    onToggleSignUpModal: status => dispatch(toggleSignUpModal(status)),
+    onMetamaskSignUp: (publicAddress, role) =>
+      dispatch(signUp(publicAddress, role)),
   };
 }
 
