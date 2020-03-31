@@ -53,6 +53,18 @@ const makeSelectSignature = () =>
     substate => substate.signature,
   );
 
+const makeSelectSignUpModal = () =>
+  createSelector(
+    selectLoginPageDomain,
+    substate => substate.signUpModal,
+  );
+
+const makeSelectRole = () =>
+  createSelector(
+    selectLoginPageDomain,
+    substate => substate.role,
+  );
+
 /**
  * Default selector used by LoginPage
  */
@@ -73,4 +85,6 @@ export {
   makeSelectPublicAddress,
   makeSelectNonce,
   makeSelectSignature,
+  makeSelectSignUpModal,
+  makeSelectRole,
 };

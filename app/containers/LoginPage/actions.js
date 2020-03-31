@@ -3,60 +3,17 @@
  * LoginPage actions
  *
  */
-import React from 'react';
 import { toast } from 'react-toastify';
-import LoadingToast from 'components/LoadingToast';
 import {
-  CHANGE_EMAIL,
-  CHANGE_PASSWORD,
-  CHANGE_ISSUBMITTED,
-  CHANGE_ERRORTEXT,
-  LOGIN,
   LOGIN_SUCCESS,
   LOGIN_ERROR,
   LOGIN_METAMASK,
   SIGN_MESSAGE,
   HANDLE_AUTHENTICATE,
+  TOGGLE_SIGNUP_MODAL,
+  SIGNUP,
 } from './constants';
 let loginToastId = null;
-
-export function changeEmail(email) {
-  return {
-    type: CHANGE_EMAIL,
-    email,
-  };
-}
-
-export function changePassword(password) {
-  return {
-    type: CHANGE_PASSWORD,
-    password,
-  };
-}
-
-export function changeIsSubmitted(isSubmitted) {
-  return {
-    type: CHANGE_ISSUBMITTED,
-    isSubmitted,
-  };
-}
-
-export function changeErrorText(errorText) {
-  return {
-    type: CHANGE_ERRORTEXT,
-    errorText,
-  };
-}
-
-export function login() {
-  loginToastId = toast(<LoadingToast message="Logging in..." />, {
-    containerId: 'loading',
-    type: toast.TYPE.INFO,
-  });
-  return {
-    type: LOGIN,
-  };
-}
 
 export function loginSuccess(res) {
   toast.dismiss(loginToastId);
@@ -99,5 +56,20 @@ export function handleAuthentication(signature) {
   return {
     type: HANDLE_AUTHENTICATE,
     signature,
+  };
+}
+
+export function toggleSignUpModal(signUpModal) {
+  return {
+    type: TOGGLE_SIGNUP_MODAL,
+    signUpModal,
+  };
+}
+
+export function signUp(publicAddress, role) {
+  return {
+    type: SIGNUP,
+    publicAddress,
+    role,
   };
 }

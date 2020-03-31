@@ -5,46 +5,27 @@
  */
 import produce from 'immer';
 import {
-  CHANGE_EMAIL,
-  CHANGE_PASSWORD,
-  CHANGE_ISSUBMITTED,
-  CHANGE_ERRORTEXT,
-  LOGIN,
   LOGIN_SUCCESS,
   LOGIN_ERROR,
   LOGIN_METAMASK,
   SIGN_MESSAGE,
   HANDLE_AUTHENTICATE,
+  TOGGLE_SIGNUP_MODAL,
+  SIGNUP,
 } from './constants';
 
 export const initialState = {
-  email: '',
-  password: '',
-  isSubmitted: false,
-  errorText: '',
   publicAddress: '',
   nonce: '',
   signature: '',
+  signUpModal: false,
+  role: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const loginPageReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case CHANGE_EMAIL:
-        draft.email = action.email;
-        break;
-      case CHANGE_PASSWORD:
-        draft.password = action.password;
-        break;
-      case CHANGE_ISSUBMITTED:
-        draft.isSubmitted = action.isSubmitted;
-        break;
-      case CHANGE_ERRORTEXT:
-        draft.errorText = action.errorText;
-        break;
-      case LOGIN:
-        break;
       case LOGIN_SUCCESS:
         draft.name = '';
         draft.email = '';
@@ -60,6 +41,14 @@ const loginPageReducer = (state = initialState, action) =>
         break;
       case HANDLE_AUTHENTICATE:
         draft.signature = action.signature;
+        break;
+      case TOGGLE_SIGNUP_MODAL:
+        draft.signUpModal = action.signUpModal;
+        break;
+      case SIGNUP:
+        draft.publicAddress = action.publicAddress;
+        draft.role = action.role;
+        break;
     }
   });
 

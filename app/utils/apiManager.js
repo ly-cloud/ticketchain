@@ -10,3 +10,9 @@ export const authenticateUser = (signature, publicAddress) =>
     signature,
     publicAddress,
   });
+
+export const userSignUp = (publicAddress, role) =>
+  axios.post(`${baseUrl}/users/signUp`, {
+    publicAddress,
+    role,
+  });
