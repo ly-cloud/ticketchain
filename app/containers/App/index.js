@@ -38,6 +38,7 @@ import {
   makeSelectOnWeb3Provider,
 } from './selectors';
 import { loadNetworkId, changeOnWeb3Provider } from './actions';
+import { CreateEventPage } from '../CreateEventPage';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -138,6 +139,7 @@ export function App(props) {
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route exact path="/login" component={LoginPage} />
+          <Route exact path="/createEvent" component={CreateEventPage} />
           <Route component={NotFoundPage} />
         </Switch>
       </div>
