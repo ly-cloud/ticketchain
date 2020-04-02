@@ -59,6 +59,7 @@ module.exports = require('./webpack.base.babel')({
       failOnError: false, // show a warning when there is a circular dependency
     }),
     new webpack.DefinePlugin(envKeys),
+    new webpack.IgnorePlugin(/\.\/locale$/),
   ],
 
   // Emit a source map for easier debugging

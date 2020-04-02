@@ -4,18 +4,21 @@
  *
  */
 import produce from 'immer';
-import { LOAD_NETWORKID } from './constants';
+import { EMPTY_EVENTS_ARRAY, PUSH_EVENT } from './constants';
 
 export const initialState = {
-  networkId: null,
+  events: [],
 };
 
 /* eslint-disable default-case, no-param-reassign */
 const homePageReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case LOAD_NETWORKID:
-        draft.networkId = action.networkId;
+      case EMPTY_EVENTS_ARRAY:
+        draft.events = [];
+        break;
+      case PUSH_EVENT:
+        draft.events.push(action.event);
         break;
     }
   });

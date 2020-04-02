@@ -19,6 +19,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useInjectReducer } from 'utils/injectReducer';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
+import Web3 from 'web3';
 
 import HomePage from 'containers/HomePage/Loadable';
 import LoginPage from 'containers/LoginPage/Loadable';
@@ -33,11 +34,7 @@ import reducer from './reducer';
 // import TicketChain from '../../../build/contracts/TicketChain.json';
 
 import GlobalStyle from '../../global-styles';
-import {
-  // makeSelectLoadAccounts,
-  makeSelectLoadNetworkId,
-  makeSelectOnWeb3Provider,
-} from './selectors';
+import { makeSelectNetworkId, makeSelectOnWeb3Provider } from './selectors';
 import { loadNetworkId, changeOnWeb3Provider } from './actions';
 
 const useStyles = makeStyles(() => ({
@@ -54,7 +51,6 @@ const useStyles = makeStyles(() => ({
 export function App(props) {
   useEffect(() => {
     checkMetamaskSupport();
-    loadBlockchainData();
   }, []);
 
   // Check if user has Metamask on browsr
@@ -63,6 +59,12 @@ export function App(props) {
       onChangeWeb3Provider(false);
     } else {
       onChangeWeb3Provider(true);
+      if (window.ethereum) {
+        let { web3 } = window;
+        web3 = new Web3(window.ethereum);
+        const networkId = await web3.eth.net.getId();
+        onLoadNetworkId(networkId);
+      }
     }
   };
 
@@ -82,19 +84,6 @@ export function App(props) {
   //   }
   // };
 
-  const loadBlockchainData = async () => {
-    const { web3 } = window;
-    if (web3) {
-      // Load account
-      // const accounts = await web3.eth.getAccounts();
-      // onLoadAccounts(accounts);
-      // Load NetworkId
-      const networkId = await web3.eth.net.getId();
-      console.log(networkId);
-      // onLoadNetworkId(networkId);
-    }
-  };
-
   // Event that notifies whenever the account/address in metamask change
   // if (window.ethereum) {
   //   window.ethereum.on('accountsChanged', accounts => {
@@ -103,7 +92,7 @@ export function App(props) {
   // }
 
   const { networkId, onWeb3Provider } = props;
-  const { onChangeWeb3Provider } = props;
+  const { onLoadNetworkId, onChangeWeb3Provider } = props;
 
   useInjectReducer({ key: 'app', reducer });
 
@@ -153,19 +142,17 @@ export function App(props) {
 App.propTypes = {
   networkId: PropTypes.number,
   onWeb3Provider: PropTypes.bool,
-  // onLoadAccounts: PropTypes.func,
-  // onLoadNetworkId: PropTypes.func,
+  onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
-  networkId: makeSelectLoadNetworkId(),
+  networkId: makeSelectNetworkId(),
   onWeb3Provider: makeSelectOnWeb3Provider(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    // onLoadAccounts: accounts => dispatch(loadAccounts(accounts)),
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),

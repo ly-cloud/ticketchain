@@ -12,7 +12,7 @@ import {
 
 export const initialState = {
   accounts: [],
-  networkId: 1,
+  networkId: 0,
   onWeb3Provider: true,
 };
 

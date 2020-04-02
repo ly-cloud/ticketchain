@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /**
  *
  * HomePage
@@ -10,6 +11,7 @@ import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
+import Web3 from 'web3';
 
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -24,11 +26,14 @@ import Container from '@material-ui/core/Container';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
-import Web3 from 'web3';
-import { makeSelectLoadNetworkId } from './selectors';
+import { makeSelectEvents } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { loadNetworkId } from './actions';
+import { emptyEventsArray, pushEvent } from './actions';
+
+// Import ABIs
+import TicketChain from '../../../build/contracts/TicketChain.json';
+import EventTicket from '../../../build/contracts/EventTicket.json';
 
 const useStyles = makeStyles(theme => ({
   icon: {
@@ -58,30 +63,78 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
 export function HomePage(props) {
   useEffect(() => {
     loadBlockchainData();
   }, []);
 
-  const web3 = new Web3(window.ethereum);
-
-  const loadBlockchainData = async () => {
-    // const { web3 } = window;
-    // Load NetworkId
-    const networkId = await web3.eth.net.getId();
-    onLoadNetworkId(networkId);
-  };
-
-  // TODO: Can be removed
-  // const { networkId } = props;
-  const { onLoadNetworkId } = props;
+  const { events } = props;
+  const { onEmptyEventsArray, onPushEvent } = props;
 
   useInjectReducer({ key: 'homePage', reducer });
   useInjectSaga({ key: 'homePage', saga });
 
   const classes = useStyles();
+
+  const loadBlockchainData = async () => {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      const { web3 } = window;
+      // Load NetworkId
+      const networkId = await web3.eth.net.getId();
+      const networkData = TicketChain.networks[networkId];
+      if (networkData) {
+        // Retrieve instance of TicketChain contract
+        const ticketChainInstance = new web3.eth.Contract(
+          TicketChain.abi,
+          networkData.address,
+        );
+        // Retrieve total number of events in TicketChain contract
+        const numEvents = await ticketChainInstance.methods
+          .getTotalEvents()
+          .call();
+        // Empty the events array in the redux store
+        onEmptyEventsArray();
+
+        // Retrieve information of all events
+        for (let eventId = 1; eventId <= numEvents; eventId += 1) {
+          // Retrieve event ticket address
+          const eventTicketAddress = await ticketChainInstance.methods
+            .events(eventId)
+            .call();
+          // Retrieve instance of EventTicket contract
+          const eventTicketInstance = new web3.eth.Contract(
+            EventTicket.abi,
+            eventTicketAddress,
+          );
+          // Retrieve event name
+          const eventName = await eventTicketInstance.methods
+            .eventName()
+            .call();
+          // Retrieve event date and time
+          let eventDateTime = await eventTicketInstance.methods
+            .eventDateTime()
+            .call();
+          eventDateTime = new Date(eventDateTime * 1000);
+          // Retrieve event venue
+          const venue = await eventTicketInstance.methods.venue().call();
+          // Store information inside an object
+          const eventObject = {
+            eventTicketAddress,
+            eventId,
+            eventName,
+            eventDateTime,
+            venue,
+          };
+          // Push object to events array in the redux store
+          onPushEvent(eventObject);
+        }
+      } else {
+        // Leave this section like this until jh figures out what to do in this scenario
+        window.alert('TicketChain contract not deployed to detected network.');
+      }
+    }
+  };
 
   return (
     <React.Fragment>
@@ -130,29 +183,30 @@ export function HomePage(props) {
         <Container className={classes.cardGrid} maxWidth="md">
           {/* End hero unit */}
           <Grid container spacing={4}>
-            {cards.map(card => (
-              <Grid item key={card} xs={12} sm={6} md={4}>
+            {events.map(event => (
+              <Grid item key={event.eventId} x1s={12} sm={6} md={4}>
                 <Card className={classes.card}>
                   <CardMedia
                     className={classes.cardMedia}
                     image="https://source.unsplash.com/random"
-                    title="Image title"
+                    title={event.eventName}
                   />
                   <CardContent className={classes.cardContent}>
                     <Typography gutterBottom variant="h5" component="h2">
-                      Heading
+                      {event.eventName}
                     </Typography>
-                    <Typography>
-                      This is a media card. You can use this section to describe
-                      the content.
+                    <Typography gutterBottom variant="subtitle1" component="h2">
+                      {event.eventDateTime.toLocaleString('en-GB', {
+                        dateStyle: 'full',
+                        timeStyle: 'short',
+                        hour12: true,
+                      })}
                     </Typography>
+                    <Typography>{event.venue}</Typography>
                   </CardContent>
                   <CardActions>
                     <Button size="small" color="primary">
-                      View
-                    </Button>
-                    <Button size="small" color="primary">
-                      Edit
+                      Buy Ticket(s)
                     </Button>
                   </CardActions>
                 </Card>
@@ -166,17 +220,19 @@ export function HomePage(props) {
 }
 
 HomePage.propTypes = {
-  // networkId: PropTypes.number,
-  onLoadNetworkId: PropTypes.func,
+  events: PropTypes.arrayOf(Object),
+  onEmptyEventsArray: PropTypes.func,
+  onPushEvent: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
-  networkId: makeSelectLoadNetworkId(),
+  events: makeSelectEvents(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
-    onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
+    onEmptyEventsArray: () => dispatch(emptyEventsArray()),
+    onPushEvent: event => dispatch(pushEvent(event)),
   };
 }
 

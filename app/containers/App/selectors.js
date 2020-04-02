@@ -11,13 +11,7 @@ const makeSelectLocation = () =>
     routerState => routerState.location,
   );
 
-const makeSelectLoadAccounts = () =>
-  createSelector(
-    selectAppDomain,
-    substate => substate.accounts,
-  );
-
-const makeSelectLoadNetworkId = () =>
+const makeSelectNetworkId = () =>
   createSelector(
     selectAppDomain,
     substate => substate.networkId,
@@ -29,9 +23,4 @@ const makeSelectOnWeb3Provider = () =>
     substate => substate.onWeb3Provider,
   );
 
-export {
-  makeSelectLocation,
-  makeSelectLoadAccounts,
-  makeSelectLoadNetworkId,
-  makeSelectOnWeb3Provider,
-};
+export { makeSelectLocation, makeSelectNetworkId, makeSelectOnWeb3Provider };

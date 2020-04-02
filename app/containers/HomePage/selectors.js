@@ -7,10 +7,10 @@ import { initialState } from './reducer';
 
 const selectHomePageDomain = state => state.homePage || initialState;
 
-const makeSelectLoadNetworkId = () =>
+const makeSelectEvents = () =>
   createSelector(
     selectHomePageDomain,
-    substate => substate.networkId,
+    substate => substate.events,
   );
 
-export { selectHomePageDomain, makeSelectLoadNetworkId };
+export { selectHomePageDomain, makeSelectEvents };
