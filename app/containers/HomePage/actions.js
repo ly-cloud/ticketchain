@@ -4,11 +4,16 @@
  *
  */
 
-import { LOAD_NETWORKID } from './constants';
+import { EMPTY_EVENTS_ARRAY, PUSH_EVENT } from './constants';
 
-export function loadNetworkId(networkId) {
+export function emptyEventsArray() {
   return {
-    type: LOAD_NETWORKID,
-    networkId,
+    type: EMPTY_EVENTS_ARRAY,
+  };
+}
+export function pushEvent(event) {
+  return {
+    type: PUSH_EVENT,
+    event,
   };
 }

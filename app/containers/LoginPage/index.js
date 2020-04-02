@@ -35,7 +35,7 @@ import {
 } from './selectors';
 import { loginMetamask, toggleSignUpModal, signUp } from './actions';
 import { loadNetworkId } from '../App/actions';
-import { makeSelectLoadNetworkId } from '../App/selectors';
+import { makeSelectNetworkId } from '../App/selectors';
 import reducer from './reducer';
 import saga from './saga';
 
@@ -197,7 +197,7 @@ LoginPage.propTypes = {
 
 const mapStateToProps = createStructuredSelector({
   publicAddress: makeSelectPublicAddress(),
-  networkId: makeSelectLoadNetworkId(),
+  networkId: makeSelectNetworkId(),
   signUpModal: makeSelectSignUpModal(),
   role: makeSelectRole(),
 });

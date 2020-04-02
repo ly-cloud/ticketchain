@@ -160,6 +160,7 @@ module.exports = require('./webpack.base.babel')({
       hashDigestLength: 20,
     }),
     new webpack.DefinePlugin(envKeys),
+    new webpack.IgnorePlugin(/\.\/locale$/),
   ],
 
   performance: {
