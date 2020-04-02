@@ -11,6 +11,7 @@ import {
   CHANGE_EVENTSTARTSALE,
   CHANGE_EVENTNAME,
   CHANGE_EVENTVENUE,
+  CREATE_EVENT,
 } from './constants';
 
 export const initialState = {
@@ -43,6 +44,8 @@ const createEventPageReducer = (state = initialState, action) =>
         break;
       case CHANGE_EVENTIMAGE:
         draft.eventImage = action.eventImage;
+        break;
+      case CREATE_EVENT:
         break;
     }
   });

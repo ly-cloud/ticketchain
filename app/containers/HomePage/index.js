@@ -24,6 +24,7 @@ import Container from '@material-ui/core/Container';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
+import Web3 from 'web3';
 import { makeSelectLoadNetworkId } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -64,15 +65,17 @@ export function HomePage(props) {
     loadBlockchainData();
   }, []);
 
+  const web3 = new Web3(window.ethereum);
+
   const loadBlockchainData = async () => {
-    const { web3 } = window;
+    // const { web3 } = window;
     // Load NetworkId
     const networkId = await web3.eth.net.getId();
     onLoadNetworkId(networkId);
   };
 
   // TODO: Can be removed
-  const { networkId } = props;
+  // const { networkId } = props;
   const { onLoadNetworkId } = props;
 
   useInjectReducer({ key: 'homePage', reducer });
@@ -163,7 +166,7 @@ export function HomePage(props) {
 }
 
 HomePage.propTypes = {
-  networkId: PropTypes.number,
+  // networkId: PropTypes.number,
   onLoadNetworkId: PropTypes.func,
 };
 

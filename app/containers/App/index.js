@@ -23,6 +23,7 @@ import { compose } from 'redux';
 import HomePage from 'containers/HomePage/Loadable';
 import LoginPage from 'containers/LoginPage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import CreateEventPage from 'containers/CreateEventPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import ConnectionBanner from '@rimble/connection-banner';
@@ -38,7 +39,6 @@ import {
   makeSelectOnWeb3Provider,
 } from './selectors';
 import { loadNetworkId, changeOnWeb3Provider } from './actions';
-import { CreateEventPage } from '../CreateEventPage';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -54,6 +54,7 @@ const useStyles = makeStyles(() => ({
 export function App(props) {
   useEffect(() => {
     checkMetamaskSupport();
+    loadBlockchainData();
   }, []);
 
   // Check if user has Metamask on browsr
@@ -81,18 +82,18 @@ export function App(props) {
   //   }
   // };
 
-  // const loadBlockchainData = async () => {
-  //   const { web3 } = window;
-  //   if (web3) {
-  //     // Load account
-  //     // const accounts = await web3.eth.getAccounts();
-  //     // onLoadAccounts(accounts);
-  //     // Load NetworkId
-  //     const networkId = await web3.eth.net.getId();
-  //     console.log(networkId)
-  //     onLoadNetworkId(networkId);
-  //   }
-  // };
+  const loadBlockchainData = async () => {
+    const { web3 } = window;
+    if (web3) {
+      // Load account
+      // const accounts = await web3.eth.getAccounts();
+      // onLoadAccounts(accounts);
+      // Load NetworkId
+      const networkId = await web3.eth.net.getId();
+      console.log(networkId);
+      // onLoadNetworkId(networkId);
+    }
+  };
 
   // Event that notifies whenever the account/address in metamask change
   // if (window.ethereum) {
@@ -112,7 +113,7 @@ export function App(props) {
       <Header />
       <ConnectionBanner
         currentNetwork={networkId}
-        requiredNetwork={1}
+        requiredNetwork={5777}
         onWeb3Fallback={!onWeb3Provider} //	True to display install metamask message
       />
       <ToastContainer

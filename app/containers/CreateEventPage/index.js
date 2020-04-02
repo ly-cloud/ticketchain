@@ -38,6 +38,7 @@ import {
   changeEventEndSale,
   changeEventVenue,
   changeEventImage,
+  createEvent,
 } from './actions';
 import reducer from './reducer';
 import saga from './saga';
@@ -73,14 +74,6 @@ const useStyles = makeStyles(theme => ({
 export function CreateEventPage(props) {
   useEffect(() => {}, []);
 
-  // const {
-  //   eventName,
-  //   eventDateTime,
-  //   eventVenue,
-  //   eventStartSale,
-  //   eventEndSale,
-  //   eventImage,
-  // } = props;
   const {
     onChangeEventName,
     onChangeEventDateTime,
@@ -88,6 +81,7 @@ export function CreateEventPage(props) {
     onChangeEventStartSale,
     onChangeEventEndSale,
     onChangeEventImage,
+    onCreateEvent,
   } = props;
 
   useInjectReducer({ key: 'createEventPage', reducer });
@@ -96,6 +90,11 @@ export function CreateEventPage(props) {
   const classes = useStyles();
 
   const now = Moment(new Date()).format('YYYY-MM-DD[T]HH:mm:ss');
+
+  async function onHandleSubmit(evt) {
+    evt.preventDefault();
+    onCreateEvent();
+  }
 
   return (
     <React.Fragment>
@@ -109,7 +108,7 @@ export function CreateEventPage(props) {
           <Typography component="h1" variant="h5">
             Create Event
           </Typography>
-          <form className={classes.form} noValidate>
+          <form className={classes.form} noValidate onSubmit={onHandleSubmit}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -221,6 +220,7 @@ CreateEventPage.propTypes = {
   onChangeEventStartSale: PropTypes.func,
   onChangeEventEndSale: PropTypes.func,
   onChangeEventImage: PropTypes.func,
+  onCreateEvent: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -234,15 +234,24 @@ const mapStateToProps = createStructuredSelector({
 
 function mapDispatchToProps(dispatch) {
   return {
-    onChangeEventName: eventName => dispatch(changeEventName(eventName)),
-    onChangeEventDateTime: eventDateTime =>
-      dispatch(changeEventDateTime(eventDateTime)),
-    onChangeEventVenue: eventVenue => dispatch(changeEventVenue(eventVenue)),
-    onChangeEventStartSale: eventStartSale =>
-      dispatch(changeEventStartSale(eventStartSale)),
-    onChangeEventEndSale: eventEndSale =>
-      dispatch(changeEventEndSale(eventEndSale)),
-    onChangeEventImage: eventImage => dispatch(changeEventImage(eventImage)),
+    onChangeEventName: evt => {
+      dispatch(changeEventName(evt.target.value));
+    },
+    onChangeEventDateTime: evt => {
+      const ts = Moment(evt.target.value).valueOf();
+      dispatch(changeEventDateTime(ts));
+    },
+    onChangeEventVenue: evt => dispatch(changeEventVenue(evt.target.value)),
+    onChangeEventStartSale: evt => {
+      const ts = Moment(evt.target.value).valueOf();
+      dispatch(changeEventStartSale(ts));
+    },
+    onChangeEventEndSale: evt => {
+      const ts = Moment(evt.target.value).valueOf();
+      dispatch(changeEventEndSale(ts));
+    },
+    onChangeEventImage: evt => dispatch(changeEventImage(evt.target.value)),
+    onCreateEvent: () => dispatch(createEvent()),
   };
 }
 
