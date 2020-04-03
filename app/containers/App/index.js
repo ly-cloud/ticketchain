@@ -34,8 +34,12 @@ import reducer from './reducer';
 // import TicketChain from '../../../build/contracts/TicketChain.json';
 
 import GlobalStyle from '../../global-styles';
-import { makeSelectNetworkId, makeSelectOnWeb3Provider } from './selectors';
-import { loadNetworkId, changeOnWeb3Provider } from './actions';
+import {
+  makeSelectAccounts,
+  makeSelectNetworkId,
+  makeSelectOnWeb3Provider,
+} from './selectors';
+import { loadNetworkId, loadAccounts, changeOnWeb3Provider } from './actions';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -64,6 +68,8 @@ export function App(props) {
         web3 = new Web3(window.ethereum);
         const networkId = await web3.eth.net.getId();
         onLoadNetworkId(networkId);
+        const accounts = await web3.eth.getAccounts();
+        onLoadAccounts(accounts);
       }
     }
   };
@@ -85,21 +91,21 @@ export function App(props) {
   // };
 
   // Event that notifies whenever the account/address in metamask change
-  // if (window.ethereum) {
-  //   window.ethereum.on('accountsChanged', accounts => {
-  //     onLoadAccounts(accounts);
-  //   });
-  // }
+  if (window.ethereum) {
+    window.ethereum.on('accountsChanged', accounts => {
+      onLoadAccounts(accounts);
+    });
+  }
 
-  const { networkId, onWeb3Provider } = props;
-  const { onLoadNetworkId, onChangeWeb3Provider } = props;
+  const { networkId, accounts, onWeb3Provider } = props;
+  const { onLoadNetworkId, onLoadAccounts, onChangeWeb3Provider } = props;
 
   useInjectReducer({ key: 'app', reducer });
 
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <Header />
+      <Header account={accounts[0]} />
       <ConnectionBanner
         currentNetwork={networkId}
         requiredNetwork={5777}
@@ -141,18 +147,22 @@ export function App(props) {
 
 App.propTypes = {
   networkId: PropTypes.number,
+  accounts: PropTypes.arrayOf(String),
   onWeb3Provider: PropTypes.bool,
+  onLoadAccounts: PropTypes.func,
   onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
   networkId: makeSelectNetworkId(),
+  accounts: makeSelectAccounts(),
   onWeb3Provider: makeSelectOnWeb3Provider(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
+    onLoadAccounts: accounts => dispatch(loadAccounts(accounts)),
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),

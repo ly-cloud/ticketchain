@@ -131,7 +131,7 @@ export function HomePage(props) {
         }
       } else {
         // Leave this section like this until jh figures out what to do in this scenario
-        window.alert('TicketChain contract not deployed to detected network.');
+        // window.alert('TicketChain contract not deployed to detected network.');
       }
     }
   };
