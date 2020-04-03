@@ -19,8 +19,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
-import Moment from 'moment';
-
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import {
@@ -89,8 +87,6 @@ export function CreateEventPage(props) {
 
   const classes = useStyles();
 
-  const now = Moment(new Date()).format('YYYY-MM-DD[T]HH:mm:ss');
-
   async function onHandleSubmit(evt) {
     evt.preventDefault();
     onCreateEvent();
@@ -130,7 +126,6 @@ export function CreateEventPage(props) {
               name="eventDateTime"
               autoFocus
               type="datetime-local"
-              defaultValue={now}
               InputLabelProps={{
                 shrink: true,
               }}
@@ -157,7 +152,6 @@ export function CreateEventPage(props) {
                 name="eventStartSale"
                 autoFocus
                 type="datetime-local"
-                defaultValue={now}
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -172,7 +166,6 @@ export function CreateEventPage(props) {
                 name="eventEndSale"
                 autoFocus
                 type="datetime-local"
-                defaultValue={now}
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -208,12 +201,6 @@ export function CreateEventPage(props) {
 }
 
 CreateEventPage.propTypes = {
-  // eventName: PropTypes.string,
-  // eventDateTime: PropTypes.string,
-  // eventVenue: PropTypes.string,
-  // eventStartSale: PropTypes.string,
-  // eventEndSale: PropTypes.string,
-  // eventImage: PropTypes.string,
   onChangeEventName: PropTypes.func,
   onChangeEventDateTime: PropTypes.func,
   onChangeEventVenue: PropTypes.func,
@@ -238,17 +225,14 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeEventName(evt.target.value));
     },
     onChangeEventDateTime: evt => {
-      const ts = Moment(evt.target.value).valueOf();
-      dispatch(changeEventDateTime(ts));
+      dispatch(changeEventDateTime(evt.target.value));
     },
     onChangeEventVenue: evt => dispatch(changeEventVenue(evt.target.value)),
     onChangeEventStartSale: evt => {
-      const ts = Moment(evt.target.value).valueOf();
-      dispatch(changeEventStartSale(ts));
+      dispatch(changeEventStartSale(evt.target.value));
     },
     onChangeEventEndSale: evt => {
-      const ts = Moment(evt.target.value).valueOf();
-      dispatch(changeEventEndSale(ts));
+      dispatch(changeEventEndSale(evt.target.value));
     },
     onChangeEventImage: evt => dispatch(changeEventImage(evt.target.value)),
     onCreateEvent: () => dispatch(createEvent()),
