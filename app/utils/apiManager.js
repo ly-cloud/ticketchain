@@ -16,3 +16,11 @@ export const userSignUp = (publicAddress, role) =>
     publicAddress,
     role,
   });
+
+export const createEvent = (address, name, imageUrl) => {
+  axios.post(`${baseUrl}/eventOrganiser/createEvent`, {
+    address,
+    name,
+    imageUrl,
+  });
+};
