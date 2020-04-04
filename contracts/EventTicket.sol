@@ -186,6 +186,18 @@ contract EventTicket {
         return tickets[ticketId].originalPrice;
     }
 
+    function getEvent() public view
+        returns (uint, string memory, uint, string memory, uint, uint) {
+        return (
+            eventId,
+            eventName,
+            eventDateTime,
+            venue,
+            openSaleTime,
+            closingSaleTime
+        );
+    }
+
     function getTicket(uint _ticketId) public view
         returns (
             uint ticketId,
