@@ -24,7 +24,6 @@ import Typography from '@material-ui/core/Typography';
 import Image from 'material-ui-image';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import logo from './TicketChain.jpg';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
@@ -32,6 +31,7 @@ import { makeSelectEvents } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 import { emptyEventsArray, pushEvent } from './actions';
+import logo from '../../images/TicketChain.jpg';
 
 // Import ABIs
 import TicketChain from '../../../build/contracts/TicketChain.json';

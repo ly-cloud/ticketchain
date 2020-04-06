@@ -1,4 +1,5 @@
 import { takeLatest, call, put, select, cps } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
 import {
   LOGIN_METAMASK,
   SIGN_MESSAGE,
@@ -57,6 +58,8 @@ export function* backendAuthentication() {
   try {
     const res = yield call(api.authenticateUser, ...[signature, publicAddress]);
     yield put(loginSuccess(res.data));
+    yield put(push('/'));
+    window.location.reload();
   } catch (err) {
     yield put(loginError(err.response.data));
   }
@@ -69,6 +72,7 @@ export function* backendSignUp() {
     yield put(toggleSignUpModal(false));
     const res = yield call(api.userSignUp, ...[publicAddress, role]);
     yield put(loginSuccess(res.data));
+    yield put(push('/'));
   } catch (err) {
     yield put(loginError(err.response.data));
   }
