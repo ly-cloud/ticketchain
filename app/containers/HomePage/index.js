@@ -21,8 +21,10 @@ import CardMedia from '@material-ui/core/CardMedia';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Image from 'material-ui-image';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import logo from './TicketChain.jpg';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
@@ -40,7 +42,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(2),
   },
   heroContent: {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.primary.main,
     padding: theme.spacing(8, 0, 6),
   },
   heroButtons: {
@@ -147,7 +149,7 @@ export function HomePage(props) {
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="sm">
-            <Typography
+            {/* <Typography
               component="h1"
               variant="h2"
               align="center"
@@ -155,16 +157,17 @@ export function HomePage(props) {
               gutterBottom
             >
               TicketChain
-            </Typography>
-            <Typography
+            </Typography> */}
+            <Image src={logo} aspectRatio={16 / 9} color="#3f51b5" />
+            {/* <Typography
               variant="h5"
               align="center"
               color="textSecondary"
               paragraph
             >
               The evolution of ticketing
-            </Typography>
-            <div className={classes.heroButtons}>
+            </Typography> */}
+            {/* <div className={classes.heroButtons}>
               <Grid container spacing={2} justify="center">
                 <Grid item>
                   <Button variant="contained" color="primary">
@@ -177,7 +180,7 @@ export function HomePage(props) {
                   </Button>
                 </Grid>
               </Grid>
-            </div>
+            </div> */}
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
