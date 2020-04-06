@@ -87,6 +87,7 @@
     "invariant": "2.2.4",
     "ip": "1.1.5",
     "lodash": "^4.17.15",
+    "material-ui-image": "^3.2.3",
     "minimist": "^1.2.5",
     "moment": "^2.24.0",
     "prop-types": "15.7.2",
