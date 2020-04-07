@@ -34,6 +34,7 @@ const useStyles = makeStyles(theme => ({
 
 function Header(props) {
   const { account } = props;
+  const { onHandleMetamaskLogin } = props;
   const classes = useStyles();
 
   return (
@@ -93,10 +94,9 @@ function Header(props) {
             </Box>
           ) : (
             <Button
-              component={Link}
               color="default"
               variant="contained"
-              to="/login"
+              onClick={onHandleMetamaskLogin}
             >
               Login
             </Button>
@@ -110,6 +110,7 @@ function Header(props) {
 
 Header.propTypes = {
   account: PropTypes.string,
+  onHandleMetamaskLogin: PropTypes.func,
 };
 
 export default Header;

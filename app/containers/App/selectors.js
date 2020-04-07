@@ -29,9 +29,16 @@ const makeSelectOnWeb3Provider = () =>
     substate => substate.onWeb3Provider,
   );
 
+const makeSelectPublicAddress = () =>
+  createSelector(
+    selectAppDomain,
+    substate => substate.publicAddress,
+  );
+
 export {
   makeSelectLocation,
   makeSelectAccounts,
   makeSelectNetworkId,
   makeSelectOnWeb3Provider,
+  makeSelectPublicAddress,
 };
