@@ -109,24 +109,18 @@ export function HomePage(props) {
             EventTicket.abi,
             eventTicketAddress,
           );
-          // Retrieve event name
-          const eventName = await eventTicketInstance.methods
-            .eventName()
+          // Returns an array of event ticket details
+          // [eventName, eventDatetime, venue, openSaleTime, closingSaleTime]
+          const eventTicketDetails = await eventTicketInstance.methods
+            .getEvent()
             .call();
-          // Retrieve event date and time
-          let eventDateTime = await eventTicketInstance.methods
-            .eventDateTime()
-            .call();
-          eventDateTime = new Date(eventDateTime * 1000);
-          // Retrieve event venue
-          const venue = await eventTicketInstance.methods.venue().call();
           // Store information inside an object
           const eventObject = {
             eventTicketAddress,
             eventId,
-            eventName,
-            eventDateTime,
-            venue,
+            eventName: eventTicketDetails[1],
+            eventDateTime: new Date(eventTicketDetails[2] * 1000),
+            venue: eventTicketDetails[3],
           };
           // Push object to events array in the redux store
           onPushEvent(eventObject);
