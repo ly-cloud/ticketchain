@@ -11,6 +11,7 @@ import {
   CHANGE_EVENTSTARTSALE,
   CHANGE_EVENTNAME,
   CHANGE_EVENTVENUE,
+  CHANGE_EVENTDES,
   CREATE_EVENT,
 } from './constants';
 
@@ -21,6 +22,7 @@ export const initialState = {
   eventStartSale: '',
   eventEndSale: '',
   eventImage: '',
+  eventDes: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -44,6 +46,9 @@ const createEventPageReducer = (state = initialState, action) =>
         break;
       case CHANGE_EVENTIMAGE:
         draft.eventImage = action.eventImage;
+        break;
+      case CHANGE_EVENTDES:
+        draft.eventDes = action.eventDes;
         break;
       case CREATE_EVENT:
         break;
