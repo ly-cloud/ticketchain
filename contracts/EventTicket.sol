@@ -23,7 +23,7 @@ contract EventTicket {
     address prevOwner;
   }
 
-  mapping(uint256 => Ticket) tickets;
+  mapping(uint256 => Ticket) public tickets;
   uint256 ticketIdCounter;
 
   constructor(
@@ -121,7 +121,7 @@ contract EventTicket {
     require(!isListed);
     for (uint256 i = 1; i <= ticketIdCounter; i++) {
       tickets[i].currOwner = address(ticketChain);
-      ticketChain.list(eventId, i, tickets[i].originalPrice);
+      ticketChain.list(eventId, i, tickets[i].originalPrice, tickets[i].seatNumber);
     }
     isListed = true;
   }
@@ -206,27 +206,6 @@ contract EventTicket {
       openSaleTime,
       closingSaleTime,
       isListed
-    );
-  }
-
-  function getTicket(uint256 _ticketId)
-    public
-    view
-    returns (
-      uint256 ticketId,
-      uint256 originalPrice,
-      uint256 seatNumber,
-      address currOwner,
-      address prevOwner
-    )
-  {
-    Ticket memory ticket = tickets[_ticketId];
-    return (
-      ticket.ticketId,
-      ticket.originalPrice,
-      ticket.seatNumber,
-      ticket.currOwner,
-      ticket.prevOwner
     );
   }
 }

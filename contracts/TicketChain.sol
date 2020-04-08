@@ -3,14 +3,9 @@ pragma solidity ^0.5.0;
 import './EventTicket.sol';
 
 
-// import './LoyaltyCoin.sol';
-
 contract TicketChain {
   address public OWNER;
-  // LoyaltyCoin loyaltyCoin;
   uint256 public commission;
-  // uint rate;
-  // uint redeemRate;
   uint256 eventIdCounter;
   mapping(uint256 => EventTicket) public events;
 
@@ -18,12 +13,12 @@ contract TicketChain {
     address seller;
     uint256 price;
     bool listed;
+    uint256 seatNumber;
   }
 
-  mapping(uint256 => mapping(uint256 => Listing)) private ticketsListing;
+  mapping(uint256 => mapping(uint256 => Listing)) public ticketsListing;
 
   constructor() public {
-    // loyaltyCoin = lcAddress;
     OWNER = msg.sender;
   }
 
@@ -60,7 +55,7 @@ contract TicketChain {
     return eventIdCounter;
   }
 
-  function list(uint256 eventId, uint256 ticketId, uint256 price)
+  function list(uint256 eventId, uint256 ticketId, uint256 price, uint256 seatNumber)
     public
     validEvent(eventId)
     onlyTicketOwner(eventId, ticketId)
@@ -69,7 +64,7 @@ contract TicketChain {
     EventTicket eventTicket = events[eventId];
     require(price <= eventTicket.getOriginalPrice(ticketId));
 
-    Listing memory newListing = Listing(msg.sender, price, true);
+    Listing memory newListing = Listing(msg.sender, price, true, seatNumber);
     ticketsListing[eventId][ticketId] = newListing;
   }
 
@@ -115,36 +110,7 @@ contract TicketChain {
     recipient.transfer(msg.value - commission);
   }
 
-  function getListing(uint256 eventId, uint256 ticketId)
-    public
-    view
-    validEvent(eventId)
-    returns (address seller, uint256 price)
-  {
-    require(ticketsListing[eventId][ticketId].listed);
-    return (
-      ticketsListing[eventId][ticketId].seller,
-      ticketsListing[eventId][ticketId].price
-    );
-  }
-
   function getTotalEvents() public view returns (uint256) {
     return eventIdCounter;
   }
-
-  // function getRedeemRate() public view returns (uint) {
-  //     return redeemRate;
-  // }
-  //
-  // function setRedeemRate(uint conversion) public onlyOwner {
-  //     redeemRate = conversion;
-  // }
-  //
-  // function getRate() public view returns (uint) {
-  //     return rate;
-  // }
-  //
-  // function setRate(uint amount) public onlyOwner {
-  //     rate = amount;
-  // }
 }
