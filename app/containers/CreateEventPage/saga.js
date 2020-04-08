@@ -52,7 +52,6 @@ export function* createEvent() {
 
     // Deploy Contract
     const deployContract = yield eventTicketContract.deploy(deployParams);
-    console.log(deployContract);
     let estimatedGas = yield cps(deployContract.estimateGas);
     const sendParams = {
       from: owner,
@@ -89,6 +88,7 @@ export function* createEvent() {
         name: eventName,
         imageUrl: eventImage,
         description: eventDes,
+        ownerAddress: owner,
       }),
     });
     yield put(clearForm());
