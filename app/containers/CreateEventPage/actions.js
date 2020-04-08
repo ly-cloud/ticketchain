@@ -13,6 +13,7 @@ import {
   CHANGE_EVENTIMAGE,
   CREATE_EVENT,
   CHANGE_EVENTDES,
+  CLEAR_FORM,
 } from './constants';
 
 export function changeEventName(eventName) {
@@ -59,6 +60,12 @@ export function changeEventDes(eventDes) {
   return {
     type: CHANGE_EVENTDES,
     eventDes,
+  };
+}
+
+export function clearForm() {
+  return {
+    type: CLEAR_FORM,
   };
 }
 

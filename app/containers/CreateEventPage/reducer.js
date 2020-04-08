@@ -13,6 +13,7 @@ import {
   CHANGE_EVENTVENUE,
   CHANGE_EVENTDES,
   CREATE_EVENT,
+  CLEAR_FORM,
 } from './constants';
 
 export const initialState = {
@@ -49,6 +50,15 @@ const createEventPageReducer = (state = initialState, action) =>
         break;
       case CHANGE_EVENTDES:
         draft.eventDes = action.eventDes;
+        break;
+      case CLEAR_FORM:
+        draft.eventName = '';
+        draft.eventDateTime = '';
+        draft.eventStartSale = '';
+        draft.eventEndSale = '';
+        draft.eventVenue = '';
+        draft.eventImage = '';
+        draft.eventDes = '';
         break;
       case CREATE_EVENT:
         break;

@@ -12,6 +12,7 @@ import {
   makeSelectEventImage,
   makeSelectEventDes,
 } from './selectors';
+import { clearForm } from './actions';
 import { CREATE_EVENT } from './constants';
 import EventTicket from '../../../build/contracts/EventTicket.json';
 import TicketChain from '../../../build/contracts/TicketChain.json';
@@ -19,7 +20,6 @@ import TicketChain from '../../../build/contracts/TicketChain.json';
 const web3 = new Web3(window.ethereum);
 
 export function* createEvent() {
-  console.log('test');
   const eventName = yield select(makeSelectEventName());
   let eventDateTime = yield select(makeSelectEventDateTime());
   eventDateTime = Moment(eventDateTime).valueOf() / 1000;
@@ -51,7 +51,6 @@ export function* createEvent() {
 
     // Deploy Contract
     const deployContract = yield eventTicketContract.deploy(deployParams);
-    console.log(deployContract);
     let estimatedGas = yield cps(deployContract.estimateGas);
     const sendParams = {
       from: owner,
@@ -90,10 +89,10 @@ export function* createEvent() {
         description: eventDes,
       }),
     });
-    yield put(loginSuccess(res.data));
+    yield put(clearForm());
+    yield put(loginSuccess(res));
   } catch (err) {
-    // console.log(err);
-    yield put(loginError(err.response.data));
+    yield put(loginError(err.data));
   }
 }
 
