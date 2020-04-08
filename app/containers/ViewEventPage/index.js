@@ -194,8 +194,8 @@ export function ViewEventPage(props) {
       <div className={classes.imageContent}>
         <Container maxWidth="md">
           <Image
-            src="https://esportsobserver.com/wp-content/uploads/2019/12/ONE-Esports-Dota-2-Simgapore-Major-768x382.jpg"
-            // src="https://media.hitekno.com/thumbs/2020/04/04/56583-meme-coffin-dancing/350x230-img-56583-meme-coffin-dancing.jpg"
+            // src="https://esportsobserver.com/wp-content/uploads/2019/12/ONE-Esports-Dota-2-Simgapore-Major-768x382.jpg"
+            src="https://media.hitekno.com/thumbs/2020/04/04/56583-meme-coffin-dancing/350x230-img-56583-meme-coffin-dancing.jpg"
             aspectRatio={16 / 9}
             color="#303030"
           />
