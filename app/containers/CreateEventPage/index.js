@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
+import { toast } from 'react-toastify';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 
@@ -18,6 +19,7 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import moment from 'moment';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
@@ -28,6 +30,7 @@ import {
   makeSelectEventEndSale,
   makeSelectEventVenue,
   makeSelectEventImage,
+  makeSelectEventDes,
 } from './selectors';
 import {
   changeEventName,
@@ -37,9 +40,12 @@ import {
   changeEventVenue,
   changeEventImage,
   createEvent,
+  changeEventDes,
 } from './actions';
 import reducer from './reducer';
 import saga from './saga';
+
+let toastId = null;
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -73,12 +79,23 @@ export function CreateEventPage(props) {
   useEffect(() => {}, []);
 
   const {
+    eventName,
+    eventVenue,
+    eventDes,
+    eventImage,
+    eventDateTime,
+    eventStartSale,
+    eventEndSale,
+  } = props;
+
+  const {
     onChangeEventName,
     onChangeEventDateTime,
     onChangeEventVenue,
     onChangeEventStartSale,
     onChangeEventEndSale,
     onChangeEventImage,
+    onChangeEventDes,
     onCreateEvent,
   } = props;
 
@@ -89,7 +106,44 @@ export function CreateEventPage(props) {
 
   async function onHandleSubmit(evt) {
     evt.preventDefault();
-    onCreateEvent();
+    const dateTime = moment(eventDateTime);
+    const startSale = moment(eventStartSale);
+    const endSale = moment(eventEndSale);
+    const isValid =
+      dateTime.isValid() && startSale.isValid() && endSale.isValid();
+    const startEndValid = startSale.isBefore(endSale);
+    const dateTimeValid =
+      dateTime.isAfter(startSale) && dateTime.isAfter(endSale);
+    let message = '';
+    const fieldsValid =
+      eventName.length === 0 ||
+      eventVenue.length === 0 ||
+      eventDes.length === 0 ||
+      eventImage.length === 0;
+    if (!isValid || !startEndValid || !dateTimeValid || fieldsValid) {
+      if (fieldsValid) {
+        message = 'Please fill up all fields';
+      } else if (!isValid) {
+        message = 'The date time format entered is incorrect';
+      } else if (!startEndValid) {
+        message =
+          'The date time for the Start of Sale is after the End of Sale';
+      } else if (!dateTime.isAfter(startSale)) {
+        message = 'The date time of the event is before the Start of Sale';
+      } else if (!dateTime.isAfter(endSale)) {
+        message = 'The date time of the event is before the Start of Sale';
+      } else if (!dateTimeValid) {
+        message =
+          'The date time of the event is before the both Start of Sale and End of Sale';
+      }
+      toast.dismiss(toastId);
+      toastId = null;
+      toast.error(message, {
+        containerId: 'default',
+      });
+    } else {
+      onCreateEvent();
+    }
   }
 
   return (
@@ -114,6 +168,7 @@ export function CreateEventPage(props) {
               label="Event Name"
               name="eventName"
               autoFocus
+              value={eventName}
               onChange={onChangeEventName}
             />
             <TextField
@@ -129,6 +184,7 @@ export function CreateEventPage(props) {
               InputLabelProps={{
                 shrink: true,
               }}
+              value={eventDateTime}
               onChange={onChangeEventDateTime}
             />
             <TextField
@@ -140,6 +196,7 @@ export function CreateEventPage(props) {
               label="Event Venue"
               name="eventVenue"
               autoFocus
+              value={eventVenue}
               onChange={onChangeEventVenue}
             />
             <Container className={classes.startEndSale}>
@@ -155,6 +212,7 @@ export function CreateEventPage(props) {
                 InputLabelProps={{
                   shrink: true,
                 }}
+                value={eventStartSale}
                 onChange={onChangeEventStartSale}
               />
               <TextField
@@ -169,9 +227,24 @@ export function CreateEventPage(props) {
                 InputLabelProps={{
                   shrink: true,
                 }}
+                value={eventEndSale}
                 onChange={onChangeEventEndSale}
               />
             </Container>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="eventDes"
+              label="Event Description"
+              name="eventDes"
+              autoFocus
+              multiline
+              rows="4"
+              value={eventDes}
+              onChange={onChangeEventDes}
+            />
             <TextField
               variant="outlined"
               margin="normal"
@@ -181,6 +254,7 @@ export function CreateEventPage(props) {
               label="Event Banner URL"
               name="eventImage"
               autoFocus
+              value={eventImage}
               onChange={onChangeEventImage}
             />
             <Button
@@ -201,12 +275,20 @@ export function CreateEventPage(props) {
 }
 
 CreateEventPage.propTypes = {
+  eventName: PropTypes.string,
+  eventVenue: PropTypes.string,
+  eventDes: PropTypes.string,
+  eventImage: PropTypes.string,
+  eventDateTime: PropTypes.string,
+  eventStartSale: PropTypes.string,
+  eventEndSale: PropTypes.string,
   onChangeEventName: PropTypes.func,
   onChangeEventDateTime: PropTypes.func,
   onChangeEventVenue: PropTypes.func,
   onChangeEventStartSale: PropTypes.func,
   onChangeEventEndSale: PropTypes.func,
   onChangeEventImage: PropTypes.func,
+  onChangeEventDes: PropTypes.func,
   onCreateEvent: PropTypes.func,
 };
 
@@ -217,6 +299,7 @@ const mapStateToProps = createStructuredSelector({
   eventStartSale: makeSelectEventStartSale(),
   eventEndSale: makeSelectEventEndSale(),
   eventImage: makeSelectEventImage(),
+  eventDes: makeSelectEventDes(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -235,6 +318,7 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeEventEndSale(evt.target.value));
     },
     onChangeEventImage: evt => dispatch(changeEventImage(evt.target.value)),
+    onChangeEventDes: evt => dispatch(changeEventDes(evt.target.value)),
     onCreateEvent: () => dispatch(createEvent()),
   };
 }

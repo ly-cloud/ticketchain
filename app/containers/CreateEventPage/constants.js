@@ -11,4 +11,6 @@ export const CHANGE_EVENTSTARTSALE =
   'app/CreateEventPage/CHANGE_EVENTSTARTSALE';
 export const CHANGE_EVENTENDSALE = 'app/CreateEventPage/CHANGE_EVENTENDSALE';
 export const CHANGE_EVENTIMAGE = 'app/CreateEventPage/CHANGE_EVENTIMAGE';
+export const CHANGE_EVENTDES = 'app/CreateEventPage/CHANGE_EVENTDES';
 export const CREATE_EVENT = 'app/CreateEventPage/CREATE_EVENT';
+export const CLEAR_FORM = 'app/CreateEventPage/CLEAR_FORM';
