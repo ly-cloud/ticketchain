@@ -12,6 +12,7 @@ import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
 import Web3 from 'web3';
+import { Link } from 'react-router-dom';
 
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -104,29 +105,33 @@ export function HomePage(props) {
           const eventTicketAddress = await ticketChainInstance.methods
             .events(eventId)
             .call();
+
           // Retrieve instance of EventTicket contract
           const eventTicketInstance = new web3.eth.Contract(
             EventTicket.abi,
             eventTicketAddress,
           );
           // Returns an array of event ticket details
-          // [eventName, eventDatetime, venue, openSaleTime, closingSaleTime]
+          // [eventName, eventDatetime, venue, openSaleTime, closingSaleTime, isListed]
           const eventTicketDetails = await eventTicketInstance.methods
             .getEvent()
             .call();
-          // Store information inside an object
-          const eventObject = {
-            eventTicketAddress,
-            eventId,
-            eventName: eventTicketDetails[1],
-            eventDateTime: new Date(eventTicketDetails[2] * 1000),
-            venue: eventTicketDetails[3],
-          };
-          // Push object to events array in the redux store
-          onPushEvent(eventObject);
+
+          // if EventTicket is listed
+          if (eventTicketDetails[6]) {
+            // Store information inside an object
+            const eventObject = {
+              eventTicketAddress,
+              eventId,
+              eventName: eventTicketDetails[1],
+              eventDateTime: new Date(eventTicketDetails[2] * 1000),
+              venue: eventTicketDetails[3],
+            };
+            // Push object to events array in the redux store
+            onPushEvent(eventObject);
+          }
         }
       } else {
-        // Leave this section like this until jh figures out what to do in this scenario
         // window.alert('TicketChain contract not deployed to detected network.');
       }
     }
@@ -206,7 +211,12 @@ export function HomePage(props) {
                     <Typography>{event.venue}</Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" color="primary">
+                    <Button
+                      size="small"
+                      color="primary"
+                      component={Link}
+                      to={`/event/${event.eventId}`}
+                    >
                       Buy Ticket(s)
                     </Button>
                   </CardActions>
