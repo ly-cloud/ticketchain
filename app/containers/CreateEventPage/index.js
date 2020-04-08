@@ -37,6 +37,7 @@ import {
   changeEventVenue,
   changeEventImage,
   createEvent,
+  changeEventDes,
 } from './actions';
 import reducer from './reducer';
 import saga from './saga';
@@ -79,6 +80,7 @@ export function CreateEventPage(props) {
     onChangeEventStartSale,
     onChangeEventEndSale,
     onChangeEventImage,
+    onChangeEventDes,
     onCreateEvent,
   } = props;
 
@@ -177,6 +179,19 @@ export function CreateEventPage(props) {
               margin="normal"
               required
               fullWidth
+              id="eventDes"
+              label="Event Description"
+              name="eventDes"
+              autoFocus
+              multiline
+              rows="4"
+              onChange={onChangeEventDes}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
               id="eventImage"
               label="Event Banner URL"
               name="eventImage"
@@ -207,6 +222,7 @@ CreateEventPage.propTypes = {
   onChangeEventStartSale: PropTypes.func,
   onChangeEventEndSale: PropTypes.func,
   onChangeEventImage: PropTypes.func,
+  onChangeEventDes: PropTypes.func,
   onCreateEvent: PropTypes.func,
 };
 
@@ -235,6 +251,7 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeEventEndSale(evt.target.value));
     },
     onChangeEventImage: evt => dispatch(changeEventImage(evt.target.value)),
+    onChangeEventDes: evt => dispatch(changeEventDes(evt.target.value)),
     onCreateEvent: () => dispatch(createEvent()),
   };
 }

@@ -10,6 +10,7 @@ import {
   makeSelectEventEndSale,
   makeSelectEventVenue,
   makeSelectEventImage,
+  makeSelectEventDes,
 } from './selectors';
 import { CREATE_EVENT } from './constants';
 import EventTicket from '../../../build/contracts/EventTicket.json';
@@ -18,6 +19,7 @@ import TicketChain from '../../../build/contracts/TicketChain.json';
 const web3 = new Web3(window.ethereum);
 
 export function* createEvent() {
+  console.log('test');
   const eventName = yield select(makeSelectEventName());
   let eventDateTime = yield select(makeSelectEventDateTime());
   eventDateTime = Moment(eventDateTime).valueOf() / 1000;
@@ -28,6 +30,7 @@ export function* createEvent() {
   eventEndSale = Moment(eventEndSale).valueOf() / 1000;
   const eventVenue = yield select(makeSelectEventVenue());
   const eventImage = yield select(makeSelectEventImage());
+  const eventDes = yield select(makeSelectEventDes());
   try {
     const owner = yield cps(web3.eth.getCoinbase);
     const eventTicketContract = new web3.eth.Contract(EventTicket.abi);
@@ -48,6 +51,7 @@ export function* createEvent() {
 
     // Deploy Contract
     const deployContract = yield eventTicketContract.deploy(deployParams);
+    console.log(deployContract);
     let estimatedGas = yield cps(deployContract.estimateGas);
     const sendParams = {
       from: owner,
@@ -83,6 +87,7 @@ export function* createEvent() {
         address: contractAddress,
         name: eventName,
         imageUrl: eventImage,
+        description: eventDes,
       }),
     });
     yield put(loginSuccess(res.data));

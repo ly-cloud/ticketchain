@@ -12,6 +12,7 @@ import {
   CHANGE_EVENTVENUE,
   CHANGE_EVENTIMAGE,
   CREATE_EVENT,
+  CHANGE_EVENTDES,
 } from './constants';
 
 export function changeEventName(eventName) {
@@ -51,6 +52,13 @@ export function changeEventImage(eventImage) {
   return {
     type: CHANGE_EVENTIMAGE,
     eventImage,
+  };
+}
+
+export function changeEventDes(eventDes) {
+  return {
+    type: CHANGE_EVENTDES,
+    eventDes,
   };
 }
 

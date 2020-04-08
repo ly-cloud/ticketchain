@@ -58,6 +58,12 @@ const makeSelectEventImage = () =>
     substate => substate.eventImage,
   );
 
+const makeSelectEventDes = () =>
+  createSelector(
+    selectCreateEventPageDomain,
+    substate => substate.eventDes,
+  );
+
 export default makeSelectCreateEventPage;
 export {
   selectCreateEventPageDomain,
@@ -67,4 +73,5 @@ export {
   makeSelectEventEndSale,
   makeSelectEventVenue,
   makeSelectEventImage,
+  makeSelectEventDes,
 };
