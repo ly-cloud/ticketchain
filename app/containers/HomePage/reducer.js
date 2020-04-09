@@ -4,9 +4,16 @@
  *
  */
 import produce from 'immer';
-import { EMPTY_EVENTS_ARRAY, PUSH_EVENT } from './constants';
+import {
+  CHANGE_TICKETCHAINADDRESS,
+  LOAD_EVENT,
+  EMPTY_EVENTS_ARRAY,
+  PUSH_EVENT,
+} from './constants';
 
 export const initialState = {
+  ticketChainAddress: '',
+  eventId: null,
   events: [],
 };
 
@@ -14,6 +21,12 @@ export const initialState = {
 const homePageReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
+      case CHANGE_TICKETCHAINADDRESS:
+        draft.ticketChainAddress = action.ticketChainAddress;
+        break;
+      case LOAD_EVENT:
+        draft.eventId = action.eventId;
+        break;
       case EMPTY_EVENTS_ARRAY:
         draft.events = [];
         break;
