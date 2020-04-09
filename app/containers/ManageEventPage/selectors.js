@@ -24,12 +24,6 @@ const makeSelectLoading = () =>
     substate => substate.loading,
   );
 
-const makeSelectError = () =>
-  createSelector(
-    selectManageEventPageDomain,
-    substate => substate.error,
-  );
-
 const makeSelectSelectedContract = () =>
   createSelector(
     selectManageEventPageDomain,
@@ -70,7 +64,6 @@ export {
   selectManageEventPageDomain,
   makeSelectEvents,
   makeSelectLoading,
-  makeSelectError,
   makeSelectSelectedContract,
   makeSelectOpenMintTicket,
   makeSelectMassMint,

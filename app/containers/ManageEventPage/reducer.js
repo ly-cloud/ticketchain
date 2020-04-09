@@ -7,13 +7,13 @@ import produce from 'immer';
 import {
   LOAD_EVENTS,
   LOAD_EVENTS_SUCCESS,
-  LOAD_EVENTS_FAILURE,
   CHANGE_SELECTED_CONTRACT,
   CHANGE_OPEN_MINT_TICKET,
   CHANGE_MASS_MINT,
   CHANGE_SEAT_NUMBER,
   CHANGE_PRICE,
   CHANGE_QUANTITY,
+  MINT_TICKET_SUCCESS,
 } from './constants';
 
 export const initialState = {
@@ -41,10 +41,6 @@ const manageEventPageReducer = (state = initialState, action) =>
         draft.error = false;
         draft.createdEvents = action.createdEvents;
         break;
-      case LOAD_EVENTS_FAILURE:
-        draft.loading = false;
-        draft.error = action.error;
-        break;
       case CHANGE_SELECTED_CONTRACT:
         draft.selectedContract = action.selectedContract;
         break;
@@ -62,6 +58,9 @@ const manageEventPageReducer = (state = initialState, action) =>
         break;
       case CHANGE_QUANTITY:
         draft.quantity = action.quantity;
+        break;
+      case MINT_TICKET_SUCCESS:
+        draft.openMintTicket = false;
         break;
     }
   });
