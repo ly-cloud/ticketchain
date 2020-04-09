@@ -5,7 +5,8 @@
  */
 import produce from 'immer';
 import {
-  CHANGE_EVENTID,
+  LOAD_EVENT,
+  LOAD_EVENT_SUCCESS,
   CHANGE_NAME,
   CHANGE_DATETIME,
   CHANGE_VENUE,
@@ -16,8 +17,10 @@ import {
 } from './constants';
 
 export const initialState = {
-  eventId: null,
+  address: '',
   name: '',
+  description: '',
+  imageUrl: '',
   dateTime: null,
   venue: '',
   openingSaleTime: null,
@@ -29,8 +32,19 @@ export const initialState = {
 const viewEventPageReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case CHANGE_EVENTID:
-        draft.eventId = action.eventId;
+      case LOAD_EVENT:
+        draft.name = '';
+        draft.description = '';
+        draft.imageUrl = '';
+        draft.dateTime = null;
+        draft.venue = '';
+        draft.openingSaleTime = null;
+        draft.closingSaleTime = null;
+        draft.address = action.address;
+        break;
+      case LOAD_EVENT_SUCCESS:
+        draft.description = action.event.description;
+        draft.imageUrl = action.event.imageUrl;
         break;
       case CHANGE_NAME:
         draft.name = action.name;

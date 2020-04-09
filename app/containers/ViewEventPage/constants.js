@@ -4,7 +4,9 @@
  *
  */
 
-export const CHANGE_EVENTID = 'app/ViewEventPage/CHANGE_EVENTID';
+export const LOAD_EVENT = 'app/ViewEventPage/LOAD_EVENT';
+export const LOAD_EVENT_SUCCESS = 'app/ViewEventPage/LOAD_EVENT_SUCCESS';
+export const LOAD_EVENT_ERROR = 'app/ViewEventPage/LOAD_EVENT_ERROR';
 export const CHANGE_NAME = 'app/ViewEventPage/CHANGE_NAME';
 export const CHANGE_DATETIME = 'app/ViewEventPage/CHANGE_DATETIME';
 export const CHANGE_VENUE = 'app/ViewEventPage/CHANGE_VENUE';

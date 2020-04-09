@@ -20,7 +20,6 @@ import TicketChain from '../../../build/contracts/TicketChain.json';
 const web3 = new Web3(window.ethereum);
 
 export function* createEvent() {
-  console.log('test');
   const eventName = yield select(makeSelectEventName());
   let eventDateTime = yield select(makeSelectEventDateTime());
   eventDateTime = Moment(eventDateTime).valueOf() / 1000;
@@ -77,7 +76,10 @@ export function* createEvent() {
     yield call(initialised.send, sendParamsInit);
 
     // Persist to backend
-    const requestUrl = 'http://localhost:5000/eventOrganiser/createEvent';
+    const requestUrl = `${
+      process.env.BACKEND_API_URL
+    }/eventOrganiser/createEvent`;
+
     const res = yield call(request, requestUrl, {
       method: 'POST',
       headers: {

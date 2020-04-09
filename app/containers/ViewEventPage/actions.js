@@ -4,8 +4,11 @@
  *
  */
 
+import { toast } from 'react-toastify';
 import {
-  CHANGE_EVENTID,
+  LOAD_EVENT,
+  LOAD_EVENT_SUCCESS,
+  LOAD_EVENT_ERROR,
   CHANGE_NAME,
   CHANGE_DATETIME,
   CHANGE_VENUE,
@@ -14,11 +17,30 @@ import {
   EMPTY_TICKETS_ARRAY,
   PUSH_TICKET,
 } from './constants';
+let loadEventToastId = null;
 
-export function changeEventId(eventId) {
+export function loadEvent(address) {
   return {
-    type: CHANGE_EVENTID,
-    eventId,
+    type: LOAD_EVENT,
+    address,
+  };
+}
+
+export function loadEventSuccess(event) {
+  return {
+    type: LOAD_EVENT_SUCCESS,
+    event,
+  };
+}
+
+export function loadEventError(error) {
+  toast.dismiss(loadEventToastId);
+  loadEventToastId = null;
+  toast.error(error.message, {
+    containerId: 'default',
+  });
+  return {
+    type: LOAD_EVENT_ERROR,
   };
 }
 
