@@ -15,16 +15,28 @@ const selectViewEventPageDomain = state => state.viewEventPage || initialState;
  * Default selector used by ViewEventPage
  */
 
-const makeSelectEventId = () =>
+const makeSelectAddress = () =>
   createSelector(
     selectViewEventPageDomain,
-    substate => substate.eventId,
+    substate => substate.address,
   );
 
 const makeSelectName = () =>
   createSelector(
     selectViewEventPageDomain,
     substate => substate.name,
+  );
+
+const makeSelectDescription = () =>
+  createSelector(
+    selectViewEventPageDomain,
+    substate => substate.description,
+  );
+
+const makeSelectImageUrl = () =>
+  createSelector(
+    selectViewEventPageDomain,
+    substate => substate.imageUrl,
   );
 
 const makeSelectDateTime = () =>
@@ -59,8 +71,10 @@ const makeSelectTickets = () =>
 
 export {
   selectViewEventPageDomain,
-  makeSelectEventId,
+  makeSelectAddress,
   makeSelectName,
+  makeSelectDescription,
+  makeSelectImageUrl,
   makeSelectDateTime,
   makeSelectVenue,
   makeSelectOpeningSaleTime,

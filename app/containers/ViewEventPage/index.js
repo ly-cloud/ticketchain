@@ -22,8 +22,9 @@ import MaterialTable from 'material-table';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import {
-  makeSelectEventId,
   makeSelectName,
+  makeSelectDescription,
+  makeSelectImageUrl,
   makeSelectDateTime,
   makeSelectVenue,
   makeSelectOpeningSaleTime,
@@ -31,7 +32,7 @@ import {
   makeSelectTickets,
 } from './selectors';
 import {
-  changeEventId,
+  loadEvent,
   changeName,
   changeDateTime,
   changeVenue,
@@ -95,8 +96,9 @@ export function ViewEventPage(props) {
 
   const {
     match,
-    eventId,
     name,
+    description,
+    imageUrl,
     dateTime,
     venue,
     openingSaleTime,
@@ -104,7 +106,7 @@ export function ViewEventPage(props) {
     tickets,
   } = props;
   const {
-    onChangeEventId,
+    onLoadEvent,
     onChangeName,
     onChangeDateTime,
     onChangeVenue,
@@ -120,7 +122,6 @@ export function ViewEventPage(props) {
   const classes = useStyles();
 
   const loadBlockchainData = async () => {
-    onChangeEventId(parseInt(match.params.eventId, 10));
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       const { web3 } = window;
@@ -135,14 +136,16 @@ export function ViewEventPage(props) {
         );
 
         // Retrieve event ticket address
-        const address = await ticketChainInstance.methods
+        const eventTicketAddress = await ticketChainInstance.methods
           .events(match.params.eventId)
           .call();
+        // Save address in store for use in Saga
+        onLoadEvent(eventTicketAddress);
 
         // Retrieve instance of EventTicket contract
         const eventTicketInstance = new web3.eth.Contract(
           EventTicket.abi,
-          address,
+          eventTicketAddress,
         );
         // // Returns an array of event ticket details
         // [eventName, eventDatetime, venue, openSaleTime, closingSaleTime, isListed]
@@ -193,12 +196,9 @@ export function ViewEventPage(props) {
       </Helmet>
       <div className={classes.imageContent}>
         <Container maxWidth="md">
-          <Image
-            // src="https://esportsobserver.com/wp-content/uploads/2019/12/ONE-Esports-Dota-2-Simgapore-Major-768x382.jpg"
-            src="https://media.hitekno.com/thumbs/2020/04/04/56583-meme-coffin-dancing/350x230-img-56583-meme-coffin-dancing.jpg"
-            aspectRatio={16 / 9}
-            color="#303030"
-          />
+          {imageUrl && (
+            <Image src={imageUrl} aspectRatio={16 / 9} color="#303030" />
+          )}
         </Container>
       </div>
       <Grid item xs={12} className={classes.grid}>
@@ -215,7 +215,7 @@ export function ViewEventPage(props) {
           </Typography>
           <Typography variant="h6">Venue: {venue}</Typography>
           <Typography variant="body1" gutterBottom>
-            description
+            {description}
           </Typography>
         </Paper>
       </Grid>
@@ -278,7 +278,8 @@ export function ViewEventPage(props) {
                       title: 'Price',
                       field: 'price',
                       type: 'currency',
-                      render: rowData => `${rowData.price} ETH`,
+                      render: rowData =>
+                        `${Web3.utils.fromWei(rowData.price, 'ether')} ETH`,
                       cellStyle: { textAlign: 'left' },
                     },
                     {
@@ -306,14 +307,15 @@ export function ViewEventPage(props) {
 
 ViewEventPage.propTypes = {
   match: PropTypes.object,
-  eventId: PropTypes.number,
   name: PropTypes.string,
+  description: PropTypes.string,
+  imageUrl: PropTypes.string,
   dateTime: PropTypes.instanceOf(Date),
   venue: PropTypes.string,
   openingSaleTime: PropTypes.instanceOf(Date),
   closingSaleTime: PropTypes.instanceOf(Date),
   tickets: PropTypes.arrayOf(Object),
-  onChangeEventId: PropTypes.func,
+  onLoadEvent: PropTypes.func,
   onChangeName: PropTypes.func,
   onChangeDateTime: PropTypes.func,
   onChangeVenue: PropTypes.func,
@@ -324,8 +326,9 @@ ViewEventPage.propTypes = {
 };
 
 const mapStateToProps = createStructuredSelector({
-  eventId: makeSelectEventId(),
   name: makeSelectName(),
+  description: makeSelectDescription(),
+  imageUrl: makeSelectImageUrl(),
   dateTime: makeSelectDateTime(),
   venue: makeSelectVenue(),
   openingSaleTime: makeSelectOpeningSaleTime(),
@@ -335,7 +338,7 @@ const mapStateToProps = createStructuredSelector({
 
 function mapDispatchToProps(dispatch) {
   return {
-    onChangeEventId: eventId => dispatch(changeEventId(eventId)),
+    onLoadEvent: address => dispatch(loadEvent(address)),
     onChangeName: name => dispatch(changeName(name)),
     onChangeDateTime: dateTime => dispatch(changeDateTime(dateTime)),
     onChangeVenue: venue => dispatch(changeVenue(venue)),
