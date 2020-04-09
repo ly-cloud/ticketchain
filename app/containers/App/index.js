@@ -24,6 +24,7 @@ import Web3 from 'web3';
 
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
+import ManageEventPage from 'containers/ManageEventPage/Loadable';
 import CreateEventPage from 'containers/CreateEventPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
@@ -173,6 +174,7 @@ export function App(props) {
       <div className={classes.main}>
         <Switch>
           <Route exact path="/" component={HomePage} />
+          <Route exact path="/manageEvent" component={ManageEventPage} />
           <Route exact path="/createEvent" component={CreateEventPage} />
           <Route component={NotFoundPage} />
         </Switch>
