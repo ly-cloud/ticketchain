@@ -4,6 +4,7 @@
  *
  */
 
+import { toast } from 'react-toastify';
 import {
   LOAD_EVENTS,
   LOAD_EVENTS_SUCCESS,
@@ -15,8 +16,11 @@ import {
   CHANGE_PRICE,
   CHANGE_QUANTITY,
   MINT_TICKET,
+  MINT_TICKET_SUCCESS,
   LIST_TICKET,
+  LIST_TICKET_SUCCESS,
   WITHDRAW_EARNINGS,
+  WITHDRAW_EARNINGS_SUCCESS,
 } from './constants';
 
 export function loadEvents() {
@@ -33,9 +37,12 @@ export function loadEventsSuccess(createdEvents) {
 }
 
 export function loadEventsFailure(error) {
+  toast.dismiss();
+  toast.error(error.message, {
+    containerId: 'default',
+  });
   return {
     type: LOAD_EVENTS_FAILURE,
-    error,
   };
 }
 
@@ -82,6 +89,16 @@ export function changeQuantity(quantity) {
 export function mintTicket() {
   return {
     type: MINT_TICKET,
+  };
+}
+
+export function mintTicketSuccess(message) {
+  toast.dismiss();
+  toast.success(message, {
+    containerId: 'default',
+  });
+  return {
+    type: MINT_TICKET_SUCCESS,
   };
 }
 

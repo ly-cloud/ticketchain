@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
+import { Link } from 'react-router-dom';
 
 import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
@@ -176,7 +177,7 @@ export function ManageEventPage({
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={onMintTicket} color="primary">
+          <Button onClick={() => onMintTicket()} color="primary">
             Mint
           </Button>
         </DialogActions>
@@ -206,9 +207,11 @@ export function ManageEventPage({
                 </CardContent>
                 <CardActions>
                   <Button
-                    disabled={event.isListed}
                     size="small"
                     color="primary"
+                    style={{ textAlign: 'center' }}
+                    component={Link}
+                    to={`/editEvent/${event.eventId}`}
                   >
                     Edit Event
                   </Button>
