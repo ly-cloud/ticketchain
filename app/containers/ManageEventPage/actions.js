@@ -17,8 +17,9 @@ import {
   CHANGE_QUANTITY,
   MINT_TICKET,
   MINT_TICKET_SUCCESS,
-  LIST_TICKET,
-  LIST_TICKET_SUCCESS,
+  CHANGE_OPEN_LIST_TICKETS,
+  LIST_TICKETS,
+  LIST_TICKETS_SUCCESS,
   WITHDRAW_EARNINGS,
   WITHDRAW_EARNINGS_SUCCESS,
 } from './constants';
@@ -102,9 +103,25 @@ export function mintTicketSuccess(message) {
   };
 }
 
-export function listTicket() {
+export function changeOpenListTickets() {
   return {
-    type: LIST_TICKET,
+    type: CHANGE_OPEN_LIST_TICKETS,
+  };
+}
+
+export function listTickets() {
+  return {
+    type: LIST_TICKETS,
+  };
+}
+
+export function listTicketsSuccess(message) {
+  toast.dismiss();
+  toast.success(message, {
+    containerId: 'default',
+  });
+  return {
+    type: LIST_TICKETS_SUCCESS,
   };
 }
 

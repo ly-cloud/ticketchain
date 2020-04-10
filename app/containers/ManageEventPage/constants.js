@@ -20,8 +20,10 @@ export const CHANGE_QUANTITY = 'app/ManageEventPage/CHANGE_QUANTITY';
 export const MINT_TICKET = 'app/ManageEventPage/MINT_TICKET';
 export const MINT_TICKET_SUCCESS = 'app/ManageEventPage/MINT_TICKET_SUCCESS';
 
-export const LIST_TICKET = 'app/ManageEventPage/LIST_TICKET';
-export const LIST_TICKET_SUCCESS = 'app/ManageEventPage/LIST_TICKET_SUCCESS';
+export const CHANGE_OPEN_LIST_TICKETS =
+  'app/ManageEventPage/CHANGE_OPEN_LIST_TICKETS';
+export const LIST_TICKETS = 'app/ManageEventPage/LIST_TICKETS';
+export const LIST_TICKETS_SUCCESS = 'app/ManageEventPage/LIST_TICKETS_SUCCESS';
 
 export const WITHDRAW_EARNINGS = 'app/ManageEventPage/WITHDRAW_EARNINGS';
 export const WITHDRAW_EARNINGS_SUCCESS =
