@@ -9,6 +9,7 @@ import {
   LOAD_EVENT,
   LOAD_EVENT_SUCCESS,
   LOAD_EVENT_ERROR,
+  CHANGE_TICKETCHAIN_ADDRESS,
   CHANGE_NAME,
   CHANGE_DATETIME,
   CHANGE_VENUE,
@@ -16,6 +17,9 @@ import {
   CHANGE_CLOSINGSALETIME,
   EMPTY_TICKETS_ARRAY,
   PUSH_TICKET,
+  CHANGE_TICKET,
+  CHANGE_MODAL_ISOPEN,
+  CHANGE_TRANSACTIONFEE,
 } from './constants';
 let loadEventToastId = null;
 
@@ -41,6 +45,13 @@ export function loadEventError(error) {
   });
   return {
     type: LOAD_EVENT_ERROR,
+  };
+}
+
+export function changeTicketChainAddress(ticketChainAddress) {
+  return {
+    type: CHANGE_TICKETCHAIN_ADDRESS,
+    ticketChainAddress,
   };
 }
 
@@ -89,5 +100,26 @@ export function pushTicket(ticket) {
   return {
     type: PUSH_TICKET,
     ticket,
+  };
+}
+
+export function changeTicket(ticket) {
+  return {
+    type: CHANGE_TICKET,
+    ticket,
+  };
+}
+
+export function changeModalIsOpen(modalIsOpen) {
+  return {
+    type: CHANGE_MODAL_ISOPEN,
+    modalIsOpen,
+  };
+}
+
+export function changeTransactionFee(transactionFee) {
+  return {
+    type: CHANGE_TRANSACTIONFEE,
+    transactionFee,
   };
 }
