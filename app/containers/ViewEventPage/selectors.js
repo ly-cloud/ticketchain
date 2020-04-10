@@ -21,6 +21,12 @@ const makeSelectAddress = () =>
     substate => substate.address,
   );
 
+const makeSelectTicketChainAddress = () =>
+  createSelector(
+    selectViewEventPageDomain,
+    substate => substate.ticketChainAddress,
+  );
+
 const makeSelectName = () =>
   createSelector(
     selectViewEventPageDomain,
@@ -69,9 +75,28 @@ const makeSelectTickets = () =>
     substate => substate.tickets,
   );
 
+const makeSelectTicket = () =>
+  createSelector(
+    selectViewEventPageDomain,
+    substate => substate.ticket,
+  );
+
+const makeSelectModalIsOpen = () =>
+  createSelector(
+    selectViewEventPageDomain,
+    substate => substate.modalIsOpen,
+  );
+
+const makeSelectTransactionFee = () =>
+  createSelector(
+    selectViewEventPageDomain,
+    substate => substate.transactionFee,
+  );
+
 export {
   selectViewEventPageDomain,
   makeSelectAddress,
+  makeSelectTicketChainAddress,
   makeSelectName,
   makeSelectDescription,
   makeSelectImageUrl,
@@ -80,4 +105,7 @@ export {
   makeSelectOpeningSaleTime,
   makeSelectClosingSaleTime,
   makeSelectTickets,
+  makeSelectTicket,
+  makeSelectModalIsOpen,
+  makeSelectTransactionFee,
 };

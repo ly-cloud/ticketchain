@@ -31,12 +31,15 @@ import { useInjectReducer } from 'utils/injectReducer';
 import { makeSelectEvents } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
-import { emptyEventsArray, pushEvent } from './actions';
+import {
+  changeTicketChainAddress,
+  loadEvent,
+  emptyEventsArray,
+} from './actions';
 import logo from '../../images/TicketChain.jpg';
 
 // Import ABIs
 import TicketChain from '../../../build/contracts/TicketChain.json';
-import EventTicket from '../../../build/contracts/EventTicket.json';
 
 const useStyles = makeStyles(theme => ({
   icon: {
@@ -72,7 +75,7 @@ export function HomePage(props) {
   }, []);
 
   const { events } = props;
-  const { onEmptyEventsArray, onPushEvent } = props;
+  const { onChangeTicketChainAddress, onLoadEvent, onEmptyEventsArray } = props;
 
   useInjectReducer({ key: 'homePage', reducer });
   useInjectSaga({ key: 'homePage', saga });
@@ -86,6 +89,8 @@ export function HomePage(props) {
       // Load NetworkId
       const networkId = await web3.eth.net.getId();
       const networkData = TicketChain.networks[networkId];
+      // Store TicketChain address in store
+      onChangeTicketChainAddress(networkData.address);
       if (networkData) {
         // Retrieve instance of TicketChain contract
         const ticketChainInstance = new web3.eth.Contract(
@@ -96,40 +101,13 @@ export function HomePage(props) {
         const numEvents = await ticketChainInstance.methods
           .getTotalEvents()
           .call();
+
         // Empty the events array in the redux store
         onEmptyEventsArray();
 
         // Retrieve information of all events
         for (let eventId = 1; eventId <= numEvents; eventId += 1) {
-          // Retrieve event ticket address
-          const eventTicketAddress = await ticketChainInstance.methods
-            .events(eventId)
-            .call();
-
-          // Retrieve instance of EventTicket contract
-          const eventTicketInstance = new web3.eth.Contract(
-            EventTicket.abi,
-            eventTicketAddress,
-          );
-          // Returns an array of event ticket details
-          // [eventName, eventDatetime, venue, openSaleTime, closingSaleTime, isListed]
-          const eventTicketDetails = await eventTicketInstance.methods
-            .getEvent()
-            .call();
-
-          // if EventTicket is listed
-          if (eventTicketDetails[6]) {
-            // Store information inside an object
-            const eventObject = {
-              eventTicketAddress,
-              eventId,
-              eventName: eventTicketDetails[1],
-              eventDateTime: new Date(eventTicketDetails[2] * 1000),
-              venue: eventTicketDetails[3],
-            };
-            // Push object to events array in the redux store
-            onPushEvent(eventObject);
-          }
+          onLoadEvent(eventId);
         }
       } else {
         // window.alert('TicketChain contract not deployed to detected network.');
@@ -148,38 +126,7 @@ export function HomePage(props) {
         {/* Hero unit */}
         <div className={classes.heroContent}>
           <Container maxWidth="sm">
-            {/* <Typography
-              component="h1"
-              variant="h2"
-              align="center"
-              color="textPrimary"
-              gutterBottom
-            >
-              TicketChain
-            </Typography> */}
             <Image src={logo} aspectRatio={16 / 9} color="#3f51b5" />
-            {/* <Typography
-              variant="h5"
-              align="center"
-              color="textSecondary"
-              paragraph
-            >
-              The evolution of ticketing
-            </Typography> */}
-            {/* <div className={classes.heroButtons}>
-              <Grid container spacing={2} justify="center">
-                <Grid item>
-                  <Button variant="contained" color="primary">
-                    Main call to action
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button variant="outlined" color="primary">
-                    Secondary action
-                  </Button>
-                </Grid>
-              </Grid>
-            </div> */}
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
@@ -188,15 +135,7 @@ export function HomePage(props) {
             {events.map(event => (
               <Grid item key={event.eventId} x1s={12} sm={6} md={4}>
                 <Card className={classes.card}>
-                  {/* <CardMedia
-                    className={classes.cardMedia}
-                    image="https://source.unsplash.com/random"
-                    title={event.eventName}
-                  /> */}
-                  <Image
-                    src="https://source.unsplash.com/random"
-                    aspectRatio={16 / 9}
-                  />
+                  <Image src={event.imageUrl} aspectRatio={16 / 9} />
                   <CardContent className={classes.cardContent}>
                     <Typography gutterBottom variant="h5" component="h2">
                       {event.eventName}
@@ -232,8 +171,9 @@ export function HomePage(props) {
 
 HomePage.propTypes = {
   events: PropTypes.arrayOf(Object),
+  onChangeTicketChainAddress: PropTypes.func,
+  onLoadEvent: PropTypes.func,
   onEmptyEventsArray: PropTypes.func,
-  onPushEvent: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -242,8 +182,10 @@ const mapStateToProps = createStructuredSelector({
 
 function mapDispatchToProps(dispatch) {
   return {
+    onChangeTicketChainAddress: ticketChainAddress =>
+      dispatch(changeTicketChainAddress(ticketChainAddress)),
+    onLoadEvent: eventId => dispatch(loadEvent(eventId)),
     onEmptyEventsArray: () => dispatch(emptyEventsArray()),
-    onPushEvent: event => dispatch(pushEvent(event)),
   };
 }
 
