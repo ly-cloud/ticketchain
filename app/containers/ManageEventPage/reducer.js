@@ -7,25 +7,29 @@ import produce from 'immer';
 import {
   LOAD_EVENTS,
   LOAD_EVENTS_SUCCESS,
-  LOAD_EVENTS_FAILURE,
   CHANGE_SELECTED_CONTRACT,
   CHANGE_OPEN_MINT_TICKET,
   CHANGE_MASS_MINT,
   CHANGE_SEAT_NUMBER,
   CHANGE_PRICE,
   CHANGE_QUANTITY,
+  MINT_TICKET_SUCCESS,
+  CHANGE_OPEN_LIST_TICKETS,
+  LIST_TICKETS_SUCCESS,
 } from './constants';
 
 export const initialState = {
   createdEvents: [],
   loading: false,
-  error: true,
   selectedContract: '',
+  //Mint Ticket
   openMintTicket: false,
   massMint: false,
   seatNumber: 0,
   price: 0,
   quantity: 0,
+  //List Tickets
+  openListTickets: false,
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -34,16 +38,10 @@ const manageEventPageReducer = (state = initialState, action) =>
     switch (action.type) {
       case LOAD_EVENTS:
         draft.loading = true;
-        draft.error = false;
         break;
       case LOAD_EVENTS_SUCCESS:
         draft.loading = false;
-        draft.error = false;
         draft.createdEvents = action.createdEvents;
-        break;
-      case LOAD_EVENTS_FAILURE:
-        draft.loading = false;
-        draft.error = action.error;
         break;
       case CHANGE_SELECTED_CONTRACT:
         draft.selectedContract = action.selectedContract;
@@ -62,6 +60,15 @@ const manageEventPageReducer = (state = initialState, action) =>
         break;
       case CHANGE_QUANTITY:
         draft.quantity = action.quantity;
+        break;
+      case MINT_TICKET_SUCCESS:
+        draft.openMintTicket = false;
+        break;
+      case CHANGE_OPEN_LIST_TICKETS:
+        draft.openListTickets = !draft.openListTickets;
+        break;
+      case LIST_TICKETS_SUCCESS:
+        draft.openListTickets = false;
         break;
     }
   });

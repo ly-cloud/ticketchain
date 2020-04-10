@@ -38,10 +38,9 @@ export function loginError(error) {
   };
 }
 
-export function loginMetamask(publicAddress) {
+export function loginMetamask() {
   return {
     type: LOGIN_METAMASK,
-    publicAddress,
   };
 }
 

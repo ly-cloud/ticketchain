@@ -21,7 +21,9 @@ import MaterialTable from 'material-table';
 
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
+import TransactionModal from 'components/TransactionModal';
 import {
+  makeSelectTicketChainAddress,
   makeSelectName,
   makeSelectDescription,
   makeSelectImageUrl,
@@ -30,9 +32,14 @@ import {
   makeSelectOpeningSaleTime,
   makeSelectClosingSaleTime,
   makeSelectTickets,
+  makeSelectTicket,
+  makeSelectModalIsOpen,
+  makeSelectTransactionFee,
 } from './selectors';
 import {
   loadEvent,
+  buyTicketBackend,
+  changeTicketChainAddress,
   changeName,
   changeDateTime,
   changeVenue,
@@ -40,10 +47,13 @@ import {
   changeClosingSaleTime,
   emptyTicketsArray,
   pushTicket,
+  changeTicket,
+  changeModalIsOpen,
+  changeTransactionFee,
 } from './actions';
+import { makeSelectAccounts } from '../App/selectors';
 import reducer from './reducer';
 import saga from './saga';
-
 // Import ABIs
 import TicketChain from '../../../build/contracts/TicketChain.json';
 import EventTicket from '../../../build/contracts/EventTicket.json';
@@ -96,6 +106,8 @@ export function ViewEventPage(props) {
 
   const {
     match,
+    accounts,
+    ticketChainAddress,
     name,
     description,
     imageUrl,
@@ -104,16 +116,24 @@ export function ViewEventPage(props) {
     openingSaleTime,
     closingSaleTime,
     tickets,
+    ticket,
+    modalIsOpen,
+    transactionFee,
   } = props;
   const {
     onLoadEvent,
+    onBuyTicketBackend,
     onChangeName,
+    onChangeTicketChainAddress,
     onChangeDateTime,
     onChangeVenue,
     onChangeOpeningSaleTime,
     onChangeClosingSaleTime,
     onEmptyTicketsArray,
     onPushTicket,
+    onChangeTicket,
+    onChangeModalIsOpen,
+    onChangeTransactionFee,
   } = props;
   const currentTime = new Date();
   useInjectReducer({ key: 'viewEventPage', reducer });
@@ -128,6 +148,7 @@ export function ViewEventPage(props) {
       // Load NetworkId
       const networkId = await web3.eth.net.getId();
       const networkData = TicketChain.networks[networkId];
+      onChangeTicketChainAddress(networkData.address);
       if (networkData) {
         // Retrieve instance of TicketChain contract
         const ticketChainInstance = new web3.eth.Contract(
@@ -139,7 +160,7 @@ export function ViewEventPage(props) {
         const eventTicketAddress = await ticketChainInstance.methods
           .events(match.params.eventId)
           .call();
-        // Save address in store for use in Saga
+        // Save event ticket address in store for use in Saga
         onLoadEvent(eventTicketAddress);
 
         // Retrieve instance of EventTicket contract
@@ -166,14 +187,15 @@ export function ViewEventPage(props) {
         onEmptyTicketsArray();
 
         // Retrieve information of all tickets
-        for (let ticketId = 1; ticketId <= totalTickets; ticketId += 1) {
+        for (let ticId = 1; ticId <= totalTickets; ticId += 1) {
           // Returns an array of ticket details
           // [seller, price, listed, seatNumber]
           const ticketDetails = await ticketChainInstance.methods
-            .ticketsListing(match.params.eventId, ticketId)
+            .ticketsListing(match.params.eventId, ticId)
             .call();
           if (ticketDetails.listed) {
             const ticketObject = {
+              ticketId: ticId,
               seller: ticketDetails.seller,
               price: ticketDetails.price,
               listed: ticketDetails.listed,
@@ -188,8 +210,50 @@ export function ViewEventPage(props) {
     }
   };
 
+  const buyTicket = async (ticketId, price) => {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      const { web3 } = window;
+      const networkId = await web3.eth.net.getId();
+      const networkData = TicketChain.networks[networkId];
+      if (networkData) {
+        // Retrieve instance of TicketChain contract
+        const ticketChainInstance = new web3.eth.Contract(
+          TicketChain.abi,
+          networkData.address,
+        );
+        const estimateGas = await ticketChainInstance.methods
+          .buy(match.params.eventId, ticketId)
+          .estimateGas({ from: accounts[0], value: price });
+        const gasPrice = await web3.eth.getGasPrice();
+        onChangeTransactionFee(
+          web3.utils.fromWei((estimateGas * gasPrice).toString(), 'ether'),
+        );
+        await ticketChainInstance.methods
+          .buy(match.params.eventId, ticketId)
+          .send({ from: accounts[0], value: price })
+          .on('receipt', () => {
+            onChangeModalIsOpen(false);
+            loadBlockchainData();
+            onBuyTicketBackend(match.params.eventId);
+          })
+          .on('error', () => {
+            onChangeModalIsOpen(false);
+          });
+      }
+    }
+  };
+
   return (
     <div>
+      <TransactionModal
+        fromAddress={accounts[0]}
+        toAddress={ticketChainAddress}
+        ticket={ticket}
+        transactionFee={transactionFee}
+        modalIsOpen={modalIsOpen}
+        onChangeModalIsOpen={onChangeModalIsOpen}
+      />
       <Helmet>
         <title>TicketChain - {name}</title>
         <meta name="description" content="TicketChain View Event Page" />
@@ -266,6 +330,11 @@ export function ViewEventPage(props) {
                 </Paper>
                 {/* [seller, price, listed, seatNumber] */}
                 <MaterialTable
+                  localization={{
+                    header: {
+                      actions: 'Buy',
+                    },
+                  }}
                   columns={[
                     {
                       title: 'Seat Number',
@@ -294,6 +363,20 @@ export function ViewEventPage(props) {
                         )}`,
                     },
                   ]}
+                  actions={[
+                    {
+                      icon: 'shopping_cart',
+                      tooltip: 'Buy ticket',
+                      onClick: (event, rowData) => {
+                        onChangeTicket(rowData);
+                        onChangeModalIsOpen(true);
+                        buyTicket(rowData.ticketId, rowData.price);
+                      },
+                    },
+                  ]}
+                  options={{
+                    actionsColumnIndex: -1,
+                  }}
                   data={tickets}
                   title={name}
                 />
@@ -307,7 +390,9 @@ export function ViewEventPage(props) {
 
 ViewEventPage.propTypes = {
   match: PropTypes.object,
+  ticketChainAddress: PropTypes.string,
   name: PropTypes.string,
+  accounts: PropTypes.arrayOf(String),
   description: PropTypes.string,
   imageUrl: PropTypes.string,
   dateTime: PropTypes.instanceOf(Date),
@@ -315,7 +400,12 @@ ViewEventPage.propTypes = {
   openingSaleTime: PropTypes.instanceOf(Date),
   closingSaleTime: PropTypes.instanceOf(Date),
   tickets: PropTypes.arrayOf(Object),
+  ticket: PropTypes.object,
+  modalIsOpen: PropTypes.bool,
+  transactionFee: PropTypes.string,
   onLoadEvent: PropTypes.func,
+  onBuyTicketBackend: PropTypes.func,
+  onChangeTicketChainAddress: PropTypes.func,
   onChangeName: PropTypes.func,
   onChangeDateTime: PropTypes.func,
   onChangeVenue: PropTypes.func,
@@ -323,10 +413,15 @@ ViewEventPage.propTypes = {
   onChangeClosingSaleTime: PropTypes.func,
   onEmptyTicketsArray: PropTypes.func,
   onPushTicket: PropTypes.func,
+  onChangeTicket: PropTypes.func,
+  onChangeModalIsOpen: PropTypes.func,
+  onChangeTransactionFee: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
+  ticketChainAddress: makeSelectTicketChainAddress(),
   name: makeSelectName(),
+  accounts: makeSelectAccounts(),
   description: makeSelectDescription(),
   imageUrl: makeSelectImageUrl(),
   dateTime: makeSelectDateTime(),
@@ -334,11 +429,17 @@ const mapStateToProps = createStructuredSelector({
   openingSaleTime: makeSelectOpeningSaleTime(),
   closingSaleTime: makeSelectClosingSaleTime(),
   tickets: makeSelectTickets(),
+  ticket: makeSelectTicket(),
+  modalIsOpen: makeSelectModalIsOpen(),
+  transactionFee: makeSelectTransactionFee(),
 });
 
 function mapDispatchToProps(dispatch) {
   return {
     onLoadEvent: address => dispatch(loadEvent(address)),
+    onBuyTicketBackend: eventId => dispatch(buyTicketBackend(eventId)),
+    onChangeTicketChainAddress: ticketChainAddress =>
+      dispatch(changeTicketChainAddress(ticketChainAddress)),
     onChangeName: name => dispatch(changeName(name)),
     onChangeDateTime: dateTime => dispatch(changeDateTime(dateTime)),
     onChangeVenue: venue => dispatch(changeVenue(venue)),
@@ -348,6 +449,11 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeClosingSaleTime(closingSaleTime)),
     onEmptyTicketsArray: () => dispatch(emptyTicketsArray()),
     onPushTicket: ticket => dispatch(pushTicket(ticket)),
+    onChangeTicket: ticket => dispatch(changeTicket(ticket)),
+    onChangeModalIsOpen: modalIsOpen =>
+      dispatch(changeModalIsOpen(modalIsOpen)),
+    onChangeTransactionFee: transactionFee =>
+      dispatch(changeTransactionFee(transactionFee)),
   };
 }
 

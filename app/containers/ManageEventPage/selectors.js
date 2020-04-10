@@ -24,12 +24,6 @@ const makeSelectLoading = () =>
     substate => substate.loading,
   );
 
-const makeSelectError = () =>
-  createSelector(
-    selectManageEventPageDomain,
-    substate => substate.error,
-  );
-
 const makeSelectSelectedContract = () =>
   createSelector(
     selectManageEventPageDomain,
@@ -66,15 +60,21 @@ const makeSelectQuantity = () =>
     substate => substate.quantity,
   );
 
+const makeSelectOpenListTickets = () =>
+  createSelector(
+    selectManageEventPageDomain,
+    substate => substate.openListTickets,
+  );
+
 export {
   selectManageEventPageDomain,
   makeSelectEvents,
   makeSelectLoading,
-  makeSelectError,
   makeSelectSelectedContract,
   makeSelectOpenMintTicket,
   makeSelectMassMint,
   makeSelectSeatNumber,
   makeSelectPrice,
   makeSelectQuantity,
+  makeSelectOpenListTickets,
 };

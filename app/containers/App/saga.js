@@ -1,13 +1,14 @@
 import { takeLatest, select, call, put } from 'redux-saga/effects';
 import { LOGIN_METAMASK } from './constants';
-import { makeSelectPublicAddress } from './selectors';
-import { loginSuccess, loginError } from '../LoginPage/actions';
+import { loginSuccess, loginError } from './actions';
+import { makeSelectAccounts } from './selectors';
 import * as api from '../../utils/apiManager';
 
 export function* metamaskLogin() {
-  const publicAddress = yield select(makeSelectPublicAddress());
+  const accounts = yield select(makeSelectAccounts());
+  const address = accounts[0].toLowerCase();
   try {
-    const res = yield call(api.login, publicAddress);
+    const res = yield call(api.login, address);
     yield put(loginSuccess(res.data));
   } catch (err) {
     yield put(loginError(err.response.data));

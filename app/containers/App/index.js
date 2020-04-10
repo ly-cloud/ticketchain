@@ -27,6 +27,7 @@ import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import ManageEventPage from 'containers/ManageEventPage/Loadable';
 import CreateEventPage from 'containers/CreateEventPage/Loadable';
 import ViewEventPage from 'containers/ViewEventPage/Loadable';
+import MyTicketsPage from 'containers/MyTicketsPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import ConnectionBanner from '@rimble/connection-banner';
@@ -46,7 +47,7 @@ import {
   loadNetworkId,
   loadAccounts,
   changeOnWeb3Provider,
-  changePublicAddress,
+  loginMetamask,
 } from './actions';
 
 const useStyles = makeStyles(() => ({
@@ -61,6 +62,9 @@ const useStyles = makeStyles(() => ({
 }));
 
 export function App(props) {
+  useInjectReducer({ key: 'app', reducer });
+  useInjectSaga({ key: 'app', saga });
+
   useEffect(() => {
     checkMetamaskSupport();
   }, []);
@@ -93,9 +97,7 @@ export function App(props) {
   // Handle Metamask Login
   const onHandleMetamaskLogin = async () => {
     const web3 = await loadWeb3();
-    // Get the active address that Metamask is using
-    const publicAddress = await web3.eth.getCoinbase();
-    onMetamaskLogin(publicAddress);
+    onMetamaskLogin();
     // Get networkId
     const currentNetworkId = await web3.eth.net.getId();
     onLoadNetworkId(currentNetworkId);
@@ -133,12 +135,10 @@ export function App(props) {
   // Event that notifies whenever the account/address in metamask change
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', newAccounts => {
-      onLoadAccounts(newAccounts);
+      window.location.reload();
+      // onLoadAccounts(newAccounts);
     });
   }
-
-  useInjectReducer({ key: 'app', reducer });
-  useInjectSaga({ key: 'app', saga });
 
   const classes = useStyles();
   return (
@@ -177,6 +177,7 @@ export function App(props) {
           <Route exact path="/" component={HomePage} />
           <Route exact path="/manageEvent" component={ManageEventPage} />
           <Route exact path="/createEvent" component={CreateEventPage} />
+          <Route exact path="/myTickets" component={MyTicketsPage} />
           <Route exact path="/event/:eventId" component={ViewEventPage} />
           <Route component={NotFoundPage} />
         </Switch>
@@ -209,8 +210,7 @@ function mapDispatchToProps(dispatch) {
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
-    onMetamaskLogin: publicAddress =>
-      dispatch(changePublicAddress(publicAddress)),
+    onMetamaskLogin: () => dispatch(loginMetamask()),
   };
 }
 
