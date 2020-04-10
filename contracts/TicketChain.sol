@@ -55,11 +55,12 @@ contract TicketChain {
     return eventIdCounter;
   }
 
-  function list(uint256 eventId, uint256 ticketId, uint256 price, uint256 seatNumber)
-    public
-    validEvent(eventId)
-    onlyTicketOwner(eventId, ticketId)
-  {
+  function list(
+    uint256 eventId,
+    uint256 ticketId,
+    uint256 price,
+    uint256 seatNumber
+  ) public validEvent(eventId) onlyTicketOwner(eventId, ticketId) {
     require(!ticketsListing[eventId][ticketId].listed);
     EventTicket eventTicket = events[eventId];
     require(price <= eventTicket.getOriginalPrice(ticketId));
@@ -99,13 +100,13 @@ contract TicketChain {
     EventTicket eventTicket = events[eventId];
     require(msg.value >= ticketsListing[eventId][ticketId].price);
     require(
-      block.timestamp >= eventTicket.openSaleTime() &&
-        block.timestamp < eventTicket.closingSaleTime()
+      now >= eventTicket.openSaleTime() && now < eventTicket.closingSaleTime()
     );
 
     address payable recipient = address(
       uint160(eventTicket.getPrevOwner(ticketId))
     );
+    delete ticketsListing[eventId][ticketId];
     eventTicket.transferTo(ticketId, msg.sender);
     recipient.transfer(msg.value - commission);
   }
