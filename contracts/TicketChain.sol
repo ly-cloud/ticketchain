@@ -113,4 +113,12 @@ contract TicketChain {
   function getTotalEvents() public view returns (uint256) {
     return eventIdCounter;
   }
+
+  function getCommission() public view returns(uint256) {
+    return commission;
+  }
+
+  function getPrice(uint256 eventId, uint256 ticketId) public view returns(uint256) {
+    return ticketsListing[eventId][ticketId].price;
+  }
 }
