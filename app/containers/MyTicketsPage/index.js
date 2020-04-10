@@ -14,16 +14,16 @@ import { compose } from 'redux';
 import { useInjectSaga } from 'utils/injectSaga';
 import { useInjectReducer } from 'utils/injectReducer';
 import { loadTickets } from './actions';
-import { makeSelectTickets } from './selectors';
+import { makeSelectTickets, makeSelectEvents } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
 
 export function MyTicketsPage(props) {
-  const { onLoadTickets } = props;
-  const { tickets } = props;
-
   useInjectReducer({ key: 'myTicketsPage', reducer });
   useInjectSaga({ key: 'myTicketsPage', saga });
+
+  const { onLoadTickets } = props;
+  const { tickets } = props;
 
   useEffect(() => {
     onLoadTickets();
@@ -42,11 +42,13 @@ export function MyTicketsPage(props) {
 
 MyTicketsPage.propTypes = {
   onLoadTickets: PropTypes.func,
-  tickets: PropTypes.string,
+  tickets: PropTypes.arrayOf(String),
+  // events: PropTypes.arrayOf(String),
 };
 
 const mapStateToProps = createStructuredSelector({
   tickets: makeSelectTickets(),
+  events: makeSelectEvents(),
 });
 
 function mapDispatchToProps(dispatch) {

@@ -1,39 +1,77 @@
-import { takeLatest, cps, call } from 'redux-saga/effects';
+import { takeLatest, cps, call, put } from 'redux-saga/effects';
 import Web3 from 'web3';
 import { LOAD_TICKETS } from './constants';
+import { loadedEvents, loadedTickets } from './actions';
 import * as api from '../../utils/apiManager';
-// import TicketChain from '../../../build/contracts/TicketChain.json';
+import EventTicket from '../../../build/contracts/EventTicket.json';
 // Individual exports for testing
 
 const web3 = new Web3(window.ethereum);
 
 export function* loadAllTicketsOwned() {
+  // Get all tickets from off-chain
   const ownerAddress = yield cps(web3.eth.getCoinbase);
   const ticketsRes = yield call(api.getMyTickets, ownerAddress);
-  const { tickets } = ticketsRes.data;
-  // Store into state
-  // yield put(loadedTickets(tickets.data.tickets));
+  const ticketsOffChain = [...ticketsRes.data.tickets];
+
+  // Get all the eventIds
   const eventIds = [];
-  tickets.forEach(ticket => {
+  ticketsOffChain.forEach(ticket => {
     eventIds.push(ticket.eventId);
   });
-  // const eventAddress = [];
-  // for (const eventId of eventIds) {
-  //   const eventRes = yield call(api.getEventbyEventId, eventId);
-  // }
+  const uniqueEventIds = new Set(eventIds);
+  const eventIdsArr = [...uniqueEventIds];
 
-  // const networkData = TicketChain.networks[networkId];
-  // const ticketChainAddress = networkData.address;
-  // const ticketChainInstance = new web3.eth.Contract(
-  //   TicketChain.abi,
-  //   ticketChainAddress,
-  // );
-  // const eventInstance = yield ticketChainInstance.events.call(0);
-  // console.log(eventInstance);
-  // for (ticket of tickets) {
-  //   const { eventId } = ticket;
-  //   console.log();
-  // }
+  // Fetch off-chain event data
+  const eventOffchain = [];
+  for (const eventId of eventIdsArr) {
+    const eventRes = yield call(api.getEventbyEventId, eventId);
+    eventOffchain.push(eventRes.data.event);
+  }
+
+  // Fetch on-chain event data
+  const events = [];
+  for (const event of eventOffchain) {
+    const eventContractInstance = new web3.eth.Contract(
+      EventTicket.abi,
+      event.address,
+    );
+    const eventDetails = yield eventContractInstance.methods.getEvent().call();
+    const eventObj = {
+      eventId: eventDetails[0],
+      eventName: eventDetails[1],
+      eventDateTime: eventDetails[2],
+      venue: eventDetails[3],
+      imageUrl: event.imageUrl,
+      description: event.description,
+    };
+    events.push(eventObj);
+  }
+
+  // Fetch on-chain ticket data
+  const tickets = [];
+  for (const ticketOffChain of ticketsOffChain) {
+    const eventRes = yield call(api.getEventbyEventId, ticketOffChain.eventId);
+    const { event } = eventRes.data;
+    const eventContractInstance = new web3.eth.Contract(
+      EventTicket.abi,
+      event.address,
+    );
+    const ticketDetails = yield eventContractInstance.methods
+      .tickets(ticketOffChain.ticketId)
+      .call();
+    const ticketObj = {
+      ticketId: ticketDetails[0],
+      originalPrice: ticketDetails[1],
+      seatNumber: ticketDetails[2],
+      currOwner: ticketDetails[3],
+      prevOwner: ticketDetails[4],
+    };
+    tickets.push(ticketObj);
+  }
+
+  yield put(loadedEvents(events));
+  yield put(loadedTickets(tickets));
 }
 
 export default function* myTicketsPageSaga() {

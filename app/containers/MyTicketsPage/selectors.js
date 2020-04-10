@@ -21,4 +21,10 @@ const makeSelectTickets = () =>
     substate => substate.tickets,
   );
 
-export { selectMyTicketsPageDomain, makeSelectTickets };
+const makeSelectEvents = () =>
+  createSelector(
+    selectMyTicketsPageDomain,
+    substate => substate.events,
+  );
+
+export { selectMyTicketsPageDomain, makeSelectTickets, makeSelectEvents };

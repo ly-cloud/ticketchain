@@ -4,7 +4,7 @@
  *
  */
 import produce from 'immer';
-import { DEFAULT_ACTION, TICKETS_LOADED } from './constants';
+import { DEFAULT_ACTION, TICKETS_LOADED, EVENTS_LOADED } from './constants';
 
 export const initialState = {
   tickets: [],
@@ -20,6 +20,8 @@ const myTicketsPageReducer = (state = initialState, action) =>
       case TICKETS_LOADED:
         draft.tickets = action.tickets;
         break;
+      case EVENTS_LOADED:
+        draft.events = action.events;
     }
   });
 
