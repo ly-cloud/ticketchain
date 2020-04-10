@@ -7,6 +7,11 @@
 export const LOAD_EVENT = 'app/ViewEventPage/LOAD_EVENT';
 export const LOAD_EVENT_SUCCESS = 'app/ViewEventPage/LOAD_EVENT_SUCCESS';
 export const LOAD_EVENT_ERROR = 'app/ViewEventPage/LOAD_EVENT_ERROR';
+export const BUY_TICKET_BACKEND = 'app/ViewEventPage/BUY_TICKET_BACKEND';
+export const BUY_TICKET_BACKEND_SUCCESS =
+  'app/ViewEventPage/BUY_TICKET_BACKEND_SUCCESS';
+export const BUY_TICKET_BACKEND_ERROR =
+  'app/ViewEventPage/BUY_TICKET_BACKEND_ERROR';
 export const CHANGE_TICKETCHAIN_ADDRESS =
   'app/ViewEventPage/CHANGE_TICKETCHAIN_ADDRESS';
 export const CHANGE_NAME = 'app/ViewEventPage/CHANGE_NAME';

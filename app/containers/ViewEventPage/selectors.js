@@ -81,6 +81,12 @@ const makeSelectTicket = () =>
     substate => substate.ticket,
   );
 
+const makeSelectEventId = () =>
+  createSelector(
+    selectViewEventPageDomain,
+    substate => substate.eventId,
+  );
+
 const makeSelectModalIsOpen = () =>
   createSelector(
     selectViewEventPageDomain,
@@ -106,6 +112,7 @@ export {
   makeSelectClosingSaleTime,
   makeSelectTickets,
   makeSelectTicket,
+  makeSelectEventId,
   makeSelectModalIsOpen,
   makeSelectTransactionFee,
 };

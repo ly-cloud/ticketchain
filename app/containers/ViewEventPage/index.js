@@ -38,6 +38,7 @@ import {
 } from './selectors';
 import {
   loadEvent,
+  buyTicketBackend,
   changeTicketChainAddress,
   changeName,
   changeDateTime,
@@ -121,6 +122,7 @@ export function ViewEventPage(props) {
   } = props;
   const {
     onLoadEvent,
+    onBuyTicketBackend,
     onChangeName,
     onChangeTicketChainAddress,
     onChangeDateTime,
@@ -233,6 +235,7 @@ export function ViewEventPage(props) {
           .on('receipt', () => {
             onChangeModalIsOpen(false);
             loadBlockchainData();
+            onBuyTicketBackend(match.params.eventId);
           })
           .on('error', () => {
             onChangeModalIsOpen(false);
@@ -401,6 +404,7 @@ ViewEventPage.propTypes = {
   modalIsOpen: PropTypes.bool,
   transactionFee: PropTypes.string,
   onLoadEvent: PropTypes.func,
+  onBuyTicketBackend: PropTypes.func,
   onChangeTicketChainAddress: PropTypes.func,
   onChangeName: PropTypes.func,
   onChangeDateTime: PropTypes.func,
@@ -433,6 +437,7 @@ const mapStateToProps = createStructuredSelector({
 function mapDispatchToProps(dispatch) {
   return {
     onLoadEvent: address => dispatch(loadEvent(address)),
+    onBuyTicketBackend: eventId => dispatch(buyTicketBackend(eventId)),
     onChangeTicketChainAddress: ticketChainAddress =>
       dispatch(changeTicketChainAddress(ticketChainAddress)),
     onChangeName: name => dispatch(changeName(name)),
