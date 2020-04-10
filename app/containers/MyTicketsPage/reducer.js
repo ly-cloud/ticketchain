@@ -7,7 +7,8 @@ import produce from 'immer';
 import { DEFAULT_ACTION, TICKETS_LOADED } from './constants';
 
 export const initialState = {
-  tickets: '',
+  tickets: [],
+  events: [],
 };
 
 /* eslint-disable default-case, no-param-reassign */
