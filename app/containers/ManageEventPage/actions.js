@@ -20,6 +20,7 @@ import {
   CHANGE_OPEN_LIST_TICKETS,
   LIST_TICKETS,
   LIST_TICKETS_SUCCESS,
+  CHANGE_OPEN_WITHDRAW_EARNINGS,
   WITHDRAW_EARNINGS,
   WITHDRAW_EARNINGS_SUCCESS,
 } from './constants';
@@ -125,8 +126,24 @@ export function listTicketsSuccess(message) {
   };
 }
 
+export function changeOpenWithdrawEarnings() {
+  return {
+    type: CHANGE_OPEN_WITHDRAW_EARNINGS,
+  };
+}
+
 export function withdrawEarnings() {
   return {
     type: WITHDRAW_EARNINGS,
+  };
+}
+
+export function withdrawEarningsSuccess(message) {
+  toast.dismiss();
+  toast.success(message, {
+    containerId: 'default',
+  });
+  return {
+    type: WITHDRAW_EARNINGS_SUCCESS,
   };
 }

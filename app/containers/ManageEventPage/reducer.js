@@ -16,20 +16,24 @@ import {
   MINT_TICKET_SUCCESS,
   CHANGE_OPEN_LIST_TICKETS,
   LIST_TICKETS_SUCCESS,
+  CHANGE_OPEN_WITHDRAW_EARNINGS,
+  WITHDRAW_EARNINGS_SUCCESS,
 } from './constants';
 
 export const initialState = {
   createdEvents: [],
   loading: false,
   selectedContract: '',
-  //Mint Ticket
+  // Mint Ticket
   openMintTicket: false,
   massMint: false,
   seatNumber: 0,
   price: 0,
   quantity: 0,
-  //List Tickets
+  // List Tickets
   openListTickets: false,
+  // Withdraw Earnings
+  openWithdrawEarnings: false,
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -69,6 +73,12 @@ const manageEventPageReducer = (state = initialState, action) =>
         break;
       case LIST_TICKETS_SUCCESS:
         draft.openListTickets = false;
+        break;
+      case CHANGE_OPEN_WITHDRAW_EARNINGS:
+        draft.openWithdrawEarnings = !draft.openWithdrawEarnings;
+        break;
+      case WITHDRAW_EARNINGS_SUCCESS:
+        draft.openWithdrawEarnings = false;
         break;
     }
   });
