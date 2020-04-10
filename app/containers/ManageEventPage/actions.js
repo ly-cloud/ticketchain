@@ -4,6 +4,7 @@
  *
  */
 
+import { toast } from 'react-toastify';
 import {
   LOAD_EVENTS,
   LOAD_EVENTS_SUCCESS,
@@ -15,8 +16,12 @@ import {
   CHANGE_PRICE,
   CHANGE_QUANTITY,
   MINT_TICKET,
-  LIST_TICKET,
+  MINT_TICKET_SUCCESS,
+  CHANGE_OPEN_LIST_TICKETS,
+  LIST_TICKETS,
+  LIST_TICKETS_SUCCESS,
   WITHDRAW_EARNINGS,
+  WITHDRAW_EARNINGS_SUCCESS,
 } from './constants';
 
 export function loadEvents() {
@@ -33,9 +38,12 @@ export function loadEventsSuccess(createdEvents) {
 }
 
 export function loadEventsFailure(error) {
+  toast.dismiss();
+  toast.error(error.message, {
+    containerId: 'default',
+  });
   return {
     type: LOAD_EVENTS_FAILURE,
-    error,
   };
 }
 
@@ -85,9 +93,35 @@ export function mintTicket() {
   };
 }
 
-export function listTicket() {
+export function mintTicketSuccess(message) {
+  toast.dismiss();
+  toast.success(message, {
+    containerId: 'default',
+  });
   return {
-    type: LIST_TICKET,
+    type: MINT_TICKET_SUCCESS,
+  };
+}
+
+export function changeOpenListTickets() {
+  return {
+    type: CHANGE_OPEN_LIST_TICKETS,
+  };
+}
+
+export function listTickets() {
+  return {
+    type: LIST_TICKETS,
+  };
+}
+
+export function listTicketsSuccess(message) {
+  toast.dismiss();
+  toast.success(message, {
+    containerId: 'default',
+  });
+  return {
+    type: LIST_TICKETS_SUCCESS,
   };
 }
 

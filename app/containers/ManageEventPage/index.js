@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { createStructuredSelector } from 'reselect';
 import { compose } from 'redux';
+import { Link } from 'react-router-dom';
 
 import Backdrop from '@material-ui/core/Backdrop';
 import Button from '@material-ui/core/Button';
@@ -23,6 +24,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
@@ -40,6 +42,7 @@ import {
   makeSelectLoading,
   makeSelectMassMint,
   makeSelectOpenMintTicket,
+  makeSelectOpenListTickets,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -52,6 +55,8 @@ import {
   changePrice,
   changeQuantity,
   mintTicket,
+  changeOpenListTickets,
+  listTickets,
 } from './actions';
 
 const key = 'manageEventPage';
@@ -96,6 +101,9 @@ export function ManageEventPage({
   onChangePrice,
   onChangeQuantity,
   onMintTicket,
+  openListTickets,
+  onChangeOpenListTickets,
+  onListTickets,
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
@@ -176,10 +184,30 @@ export function ManageEventPage({
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={onMintTicket} color="primary">
+          <Button onClick={() => onMintTicket()} color="primary">
             Mint
           </Button>
         </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openListTickets}
+        onClose={() => onChangeOpenListTickets('')}
+      >
+        <DialogTitle>List Tickets</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will list all your minted tickets onto the TicketChain market,
+            you will not be able to mint more ticket after this operation.
+          </DialogContentText>
+          <DialogActions>
+            <Button onClick={() => onChangeOpenListTickets('')} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={() => onListTickets()} color="primary" autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </DialogContent>
       </Dialog>
       <Container className={classes.cardGrid} maxWidth="md">
         <Grid container spacing={4}>
@@ -188,7 +216,7 @@ export function ManageEventPage({
               <Card className={classes.card}>
                 <CardMedia
                   className={classes.cardMedia}
-                  image="https://source.unsplash.com/random"
+                  image={event.imageUrl}
                   title={event.eventName}
                 />
                 <CardContent className={classes.cardContent}>
@@ -196,19 +224,27 @@ export function ManageEventPage({
                     {event.eventName}
                   </Typography>
                   <Typography gutterBottom variant="subtitle1" component="h2">
-                    {event.eventDateTime.toLocaleString('en-GB', {
-                      dateStyle: 'full',
-                      timeStyle: 'short',
-                      hour12: true,
-                    })}
+                    {new Date(event.eventDateTime * 1000).toLocaleString(
+                      'en-SG',
+                      {
+                        dateStyle: 'full',
+                        timeStyle: 'short',
+                        hour12: true,
+                      },
+                    )}
                   </Typography>
-                  <Typography>{event.venue}</Typography>
+                  <Typography gutterBottom variant="subtitle1">
+                    {event.venue}
+                  </Typography>
+                  <Typography variant="caption">{event.description}</Typography>
                 </CardContent>
                 <CardActions>
                   <Button
-                    disabled={event.isListed}
                     size="small"
                     color="primary"
+                    style={{ textAlign: 'center' }}
+                    component={Link}
+                    to={`/editEvent/${event.eventId}`}
                   >
                     Edit Event
                   </Button>
@@ -224,6 +260,7 @@ export function ManageEventPage({
                     disabled={event.isListed}
                     size="small"
                     color="primary"
+                    onClick={() => onChangeOpenListTickets(event.address)}
                   >
                     List Tickets
                   </Button>
@@ -248,15 +285,20 @@ ManageEventPage.propTypes = {
   loading: PropTypes.bool,
   createdEvents: PropTypes.arrayOf(PropTypes.object),
   accounts: PropTypes.arrayOf(PropTypes.string),
+  onLoad: PropTypes.func,
+  //Mint Ticket
   openMintTicket: PropTypes.bool,
   massMint: PropTypes.bool,
-  onLoad: PropTypes.func,
   onChangeOpenMintTicket: PropTypes.func,
   onChangeMassMint: PropTypes.func,
   onChangeSeatNumber: PropTypes.func,
   onChangePrice: PropTypes.func,
   onChangeQuantity: PropTypes.func,
   onMintTicket: PropTypes.func,
+  //List Tickets
+  openListTickets: PropTypes.bool,
+  onChangeOpenListTickets: PropTypes.func,
+  onListTickets: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -265,6 +307,7 @@ const mapStateToProps = createStructuredSelector({
   accounts: makeSelectAccounts(),
   openMintTicket: makeSelectOpenMintTicket(),
   massMint: makeSelectMassMint(),
+  openListTickets: makeSelectOpenListTickets(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -281,6 +324,11 @@ function mapDispatchToProps(dispatch) {
     onChangeQuantity: evt =>
       dispatch(changeQuantity(parseInt(evt.target.value, 10))),
     onMintTicket: () => dispatch(mintTicket()),
+    onChangeOpenListTickets: address => {
+      dispatch(changeSelectedContract(address));
+      dispatch(changeOpenListTickets());
+    },
+    onListTickets: () => dispatch(listTickets()),
   };
 }
 

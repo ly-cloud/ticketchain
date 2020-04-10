@@ -75,6 +75,10 @@ export function* createEvent() {
     };
     yield call(initialised.send, sendParamsInit);
 
+    // Get eventId
+    const eventDetails = yield eventTicketInstance.methods.getEvent().call();
+    const eventId = eventDetails[0];
+
     // Persist to backend
     const requestUrl = `${
       process.env.BACKEND_API_URL
@@ -91,6 +95,7 @@ export function* createEvent() {
         imageUrl: eventImage,
         description: eventDes,
         ownerAddress: owner,
+        eventId,
       }),
     });
     yield put(clearForm());
