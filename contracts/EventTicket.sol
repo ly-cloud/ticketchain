@@ -63,6 +63,7 @@ contract EventTicket {
   function initialise() public onlyOwner returns (uint256) {
     eventId = ticketChain.newEvent();
     eventIdSet = true;
+    return eventId;
   }
 
   function isEventTicket() public pure returns (bool) {
@@ -183,6 +184,14 @@ contract EventTicket {
 
   function getOriginalPrice(uint256 ticketId) public view returns (uint256) {
     return tickets[ticketId].originalPrice;
+  }
+
+  function getIsListed() public view returns (bool) {
+    return isListed;
+  }
+
+  function getEventIdSet() public view returns (bool) {
+    return eventIdSet;
   }
 
   function getEvent()
