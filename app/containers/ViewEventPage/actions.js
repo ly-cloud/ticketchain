@@ -9,6 +9,9 @@ import {
   LOAD_EVENT,
   LOAD_EVENT_SUCCESS,
   LOAD_EVENT_ERROR,
+  BUY_TICKET_BACKEND,
+  BUY_TICKET_BACKEND_SUCCESS,
+  BUY_TICKET_BACKEND_ERROR,
   CHANGE_TICKETCHAIN_ADDRESS,
   CHANGE_NAME,
   CHANGE_DATETIME,
@@ -22,6 +25,7 @@ import {
   CHANGE_TRANSACTIONFEE,
 } from './constants';
 let loadEventToastId = null;
+let buyTicketBackendToastId = null;
 
 export function loadEvent(address) {
   return {
@@ -45,6 +49,35 @@ export function loadEventError(error) {
   });
   return {
     type: LOAD_EVENT_ERROR,
+  };
+}
+
+export function buyTicketBackend(eventId) {
+  return {
+    type: BUY_TICKET_BACKEND,
+    eventId,
+  };
+}
+
+export function buyTicketBackendSuccess(res) {
+  toast.dismiss(loadEventToastId);
+  loadEventToastId = null;
+  toast.success(res.message, {
+    containerId: 'default',
+  });
+  return {
+    type: BUY_TICKET_BACKEND_SUCCESS,
+  };
+}
+
+export function buyTicketBackendError(error) {
+  toast.dismiss(loadEventToastId);
+  loadEventToastId = null;
+  toast.error(error.message, {
+    containerId: 'default',
+  });
+  return {
+    type: BUY_TICKET_BACKEND_ERROR,
   };
 }
 

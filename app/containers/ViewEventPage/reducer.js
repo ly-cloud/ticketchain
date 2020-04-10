@@ -6,6 +6,7 @@
 import produce from 'immer';
 import {
   LOAD_EVENT,
+  BUY_TICKET_BACKEND,
   LOAD_EVENT_SUCCESS,
   CHANGE_NAME,
   CHANGE_TICKETCHAIN_ADDRESS,
@@ -31,6 +32,7 @@ export const initialState = {
   closingSaleTime: null,
   tickets: [],
   ticket: null,
+  eventId: 0,
   modalIsOpen: false,
   transactionFee: '',
 };
@@ -48,6 +50,9 @@ const viewEventPageReducer = (state = initialState, action) =>
         draft.openingSaleTime = null;
         draft.closingSaleTime = null;
         draft.address = action.address;
+        break;
+      case BUY_TICKET_BACKEND:
+        draft.eventId = action.eventId;
         break;
       case LOAD_EVENT_SUCCESS:
         draft.description = action.event.description;
