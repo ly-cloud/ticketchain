@@ -32,3 +32,6 @@ export const createEvent = (address, name, imageUrl) => {
 
 export const getMyTickets = address =>
   axios.get(`${baseUrl}/ticket/currentOwner/${address}`);
+
+export const getEventbyEventId = eventId =>
+  axios.get(`${baseUrl}/eventOrganiser/eventId/${eventId}`);

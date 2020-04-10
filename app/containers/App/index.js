@@ -47,7 +47,7 @@ import {
   loadNetworkId,
   loadAccounts,
   changeOnWeb3Provider,
-  changePublicAddress,
+  loginMetamask,
 } from './actions';
 
 const useStyles = makeStyles(() => ({
@@ -62,6 +62,9 @@ const useStyles = makeStyles(() => ({
 }));
 
 export function App(props) {
+  useInjectReducer({ key: 'app', reducer });
+  useInjectSaga({ key: 'app', saga });
+
   useEffect(() => {
     checkMetamaskSupport();
   }, []);
@@ -94,9 +97,7 @@ export function App(props) {
   // Handle Metamask Login
   const onHandleMetamaskLogin = async () => {
     const web3 = await loadWeb3();
-    // Get the active address that Metamask is using
-    const publicAddress = await web3.eth.getCoinbase();
-    onMetamaskLogin(publicAddress);
+    onMetamaskLogin();
     // Get networkId
     const currentNetworkId = await web3.eth.net.getId();
     onLoadNetworkId(currentNetworkId);
@@ -137,9 +138,6 @@ export function App(props) {
       onLoadAccounts(newAccounts);
     });
   }
-
-  useInjectReducer({ key: 'app', reducer });
-  useInjectSaga({ key: 'app', saga });
 
   const classes = useStyles();
   return (
@@ -211,8 +209,7 @@ function mapDispatchToProps(dispatch) {
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
-    onMetamaskLogin: publicAddress =>
-      dispatch(changePublicAddress(publicAddress)),
+    onMetamaskLogin: () => dispatch(loginMetamask()),
   };
 }
 

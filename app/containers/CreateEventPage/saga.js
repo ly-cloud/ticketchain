@@ -12,6 +12,7 @@ import {
   makeSelectEventImage,
   makeSelectEventDes,
 } from './selectors';
+import { makeSelectAccounts } from '../App/selectors';
 import { clearForm } from './actions';
 import { CREATE_EVENT } from './constants';
 import EventTicket from '../../../build/contracts/EventTicket.json';
@@ -20,6 +21,7 @@ import TicketChain from '../../../build/contracts/TicketChain.json';
 const web3 = new Web3(window.ethereum);
 
 export function* createEvent() {
+  const accounts = yield select(makeSelectAccounts());
   const eventName = yield select(makeSelectEventName());
   let eventDateTime = yield select(makeSelectEventDateTime());
   eventDateTime = Moment(eventDateTime).valueOf() / 1000;
@@ -32,7 +34,7 @@ export function* createEvent() {
   const eventImage = yield select(makeSelectEventImage());
   const eventDes = yield select(makeSelectEventDes());
   try {
-    const owner = yield cps(web3.eth.getCoinbase);
+    const owner = accounts[0].toLowerCase();
     const eventTicketContract = new web3.eth.Contract(EventTicket.abi);
     const networkId = yield cps(web3.eth.net.getId);
     const networkData = TicketChain.networks[networkId];
@@ -51,11 +53,8 @@ export function* createEvent() {
 
     // Deploy Contract
     const deployContract = yield eventTicketContract.deploy(deployParams);
-    let estimatedGas = yield cps(deployContract.estimateGas);
     const sendParams = {
       from: owner,
-      gasPrice: estimatedGas,
-      gas: estimatedGas,
     };
     const newContractinstance = yield call(deployContract.send, sendParams);
 
@@ -67,11 +66,8 @@ export function* createEvent() {
       contractAddress,
     );
     const initialised = yield eventTicketInstance.methods.initialise();
-    estimatedGas = yield cps(initialised.estimateGas);
     const sendParamsInit = {
       from: owner,
-      gasPrice: estimatedGas,
-      gas: estimatedGas,
     };
     yield call(initialised.send, sendParamsInit);
 
@@ -90,11 +86,11 @@ export function* createEvent() {
         'Content-Type': 'application/json; charset =utf-8',
       },
       body: JSON.stringify({
-        address: contractAddress,
+        address: contractAddress.toLowerCase(),
         name: eventName,
         imageUrl: eventImage,
         description: eventDes,
-        ownerAddress: owner,
+        ownerAddress: owner.toLowerCase(),
         eventId,
       }),
     });
