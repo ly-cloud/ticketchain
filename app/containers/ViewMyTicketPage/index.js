@@ -81,7 +81,7 @@ export function ViewMyTicketPage(props) {
             {
               icon: 'store',
               tooltip: 'List',
-            }
+            },
           ]}
           options={{
             actionsColumnIndex: -1,
