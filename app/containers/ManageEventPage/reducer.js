@@ -27,7 +27,7 @@ export const initialState = {
   // Mint Ticket
   openMintTicket: false,
   massMint: false,
-  seatNumber: 0,
+  seatNumber: '',
   price: 0,
   quantity: 0,
   // List Tickets

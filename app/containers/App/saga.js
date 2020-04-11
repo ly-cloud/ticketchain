@@ -6,7 +6,7 @@ import * as api from '../../utils/apiManager';
 
 export function* metamaskLogin() {
   const accounts = yield select(makeSelectAccounts());
-  const address = accounts[0].toLowerCase();
+  const address = accounts[0];
   try {
     const res = yield call(api.login, address);
     yield put(loginSuccess(res.data));
