@@ -1,4 +1,4 @@
-import { takeLatest, put, select, call } from 'redux-saga/effects';
+import { takeLatest, put, select, call, cps } from 'redux-saga/effects';
 import Web3 from 'web3';
 import request from 'utils/request';
 import {
@@ -28,8 +28,8 @@ const web3 = new Web3(window.ethereum);
 
 export function* loadEvents() {
   try {
-    const accounts = yield select(makeSelectAccounts());
-    const addressStr = accounts[0].toLowerCase();
+    const accounts = yield cps(web3.eth.getAccounts);
+    const addressStr = accounts[0];
     const requestURL = `${
       process.env.BACKEND_API_URL
     }/eventOrganiser/ownerAddress/${addressStr}`;

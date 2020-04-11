@@ -1,4 +1,4 @@
-import { takeLatest, cps, call, put } from 'redux-saga/effects';
+import { takeLatest, call, put, cps } from 'redux-saga/effects';
 import Web3 from 'web3';
 import { LOAD_TICKETS } from './constants';
 import { loadedEvents, loadedTickets } from './actions';
@@ -10,7 +10,8 @@ const web3 = new Web3(window.ethereum);
 
 export function* loadAllTicketsOwned() {
   // Get all tickets from off-chain
-  const ownerAddress = yield cps(web3.eth.getCoinbase);
+  const accounts = yield cps(web3.eth.getAccounts);
+  const ownerAddress = accounts[0];
   const ticketsRes = yield call(api.getMyTickets, ownerAddress);
   const ticketsOffChain = [...ticketsRes.data.tickets];
 
@@ -69,6 +70,8 @@ export function* loadAllTicketsOwned() {
     };
     tickets.push(ticketObj);
   }
+  console.log(tickets);
+  console.log(events);
 
   yield put(loadedEvents(events));
   yield put(loadedTickets(tickets));

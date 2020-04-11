@@ -34,7 +34,7 @@ export function* createEvent() {
   const eventImage = yield select(makeSelectEventImage());
   const eventDes = yield select(makeSelectEventDes());
   try {
-    const owner = accounts[0].toLowerCase();
+    const owner = accounts[0];
     const eventTicketContract = new web3.eth.Contract(EventTicket.abi);
     const networkId = yield cps(web3.eth.net.getId);
     const networkData = TicketChain.networks[networkId];
@@ -86,11 +86,11 @@ export function* createEvent() {
         'Content-Type': 'application/json; charset =utf-8',
       },
       body: JSON.stringify({
-        address: contractAddress.toLowerCase(),
+        address: contractAddress,
         name: eventName,
         imageUrl: eventImage,
         description: eventDes,
-        ownerAddress: owner.toLowerCase(),
+        ownerAddress: owner,
         eventId,
       }),
     });
