@@ -44,21 +44,21 @@ contract EventTicket {
   }
 
   modifier onlyOwner() {
-    require(msg.sender == OWNER);
+    require(msg.sender == OWNER, "msg.sender is not OWNER");
     _;
   }
 
   modifier onlyTicketOwner(uint256 ticketId) {
-    require(msg.sender == tickets[ticketId].currOwner);
+    require(msg.sender == tickets[ticketId].currOwner, "msg.sender is not ticket owner");
     _;
   }
 
   modifier initialised() {
-    require(eventIdSet);
+    require(eventIdSet, "event not initialise");
     _;
   }
 
-  function() external payable {}
+  //function() external payable {}
 
   function initialise() public onlyOwner returns (uint256) {
     eventId = ticketChain.newEvent();
@@ -94,7 +94,7 @@ contract EventTicket {
     onlyOwner
     initialised
   {
-    require(!isListed);
+    require(!isListed, "Tickets listed already");
     Ticket memory newTicket;
     for (uint256 i = 0; i < quantity; i++) {
       ticketIdCounter++;
@@ -119,7 +119,7 @@ contract EventTicket {
   }
 
   function massList() public initialised onlyOwner {
-    require(!isListed);
+    require(!isListed, "Tickets listed already");
     for (uint256 i = 1; i <= ticketIdCounter; i++) {
       tickets[i].currOwner = address(ticketChain);
       ticketChain.list(eventId, i, tickets[i].originalPrice, tickets[i].seatNumber);
@@ -132,7 +132,7 @@ contract EventTicket {
     initialised
     onlyTicketOwner(ticketId)
   {
-    require(msg.sender == address(ticketChain));
+    require(msg.sender == address(ticketChain), "msg.sender is not TicketChain");
     tickets[ticketId].prevOwner = tickets[ticketId].currOwner;
     tickets[ticketId].currOwner = newOwner;
   }
@@ -146,27 +146,27 @@ contract EventTicket {
   }
 
   function updateEventName(string memory _eventName) public onlyOwner {
-    require(!isListed);
+    require(!isListed, "Tickets listed already");
     eventName = _eventName;
   }
 
   function updateEventDateTime(uint256 _eventDateTime) public onlyOwner {
-    require(!isListed);
+    require(!isListed, "Tickets listed already");
     eventDateTime = _eventDateTime;
   }
 
   function updateVenue(string memory _venue) public onlyOwner {
-    require(!isListed);
+    require(!isListed, "Tickets listed already");
     venue = _venue;
   }
 
   function updateOpenSaleTime(uint256 _openSaleTime) public onlyOwner {
-    require(!isListed);
+    require(!isListed, "Tickets listed already");
     openSaleTime = _openSaleTime;
   }
 
   function updateClosingSaleTime(uint256 _closingSaleTime) public onlyOwner {
-    require(!isListed);
+    require(!isListed, "Tickets listed already");
     closingSaleTime = _closingSaleTime;
   }
 
