@@ -58,7 +58,7 @@ contract EventTicket {
     _;
   }
 
-  //function() external payable {}
+  function() external payable {}
 
   function initialise() public onlyOwner returns (uint256) {
     eventId = ticketChain.newEvent();
