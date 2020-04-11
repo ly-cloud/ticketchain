@@ -364,7 +364,7 @@ function mapDispatchToProps(dispatch) {
     onChangeMassMint: () => dispatch(changeMassMint()),
     onChangeSeatNumber: evt =>
       dispatch(changeSeatNumber(parseInt(evt.target.value, 10))),
-    onChangePrice: evt => dispatch(changePrice(parseInt(evt.target.value, 10))),
+    onChangePrice: evt => dispatch(changePrice(evt.target.value)),
     onChangeQuantity: evt =>
       dispatch(changeQuantity(parseInt(evt.target.value, 10))),
     onMintTicket: () => dispatch(mintTicket()),

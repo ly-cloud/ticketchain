@@ -44,17 +44,17 @@ contract EventTicket {
   }
 
   modifier onlyOwner() {
-    require(msg.sender == OWNER);
+    require(msg.sender == OWNER, "Only owner of EventTicket contract can call");
     _;
   }
 
   modifier onlyTicketOwner(uint256 ticketId) {
-    require(msg.sender == tickets[ticketId].currOwner);
+    require(msg.sender == tickets[ticketId].currOwner, "Only the ticket owner can call");
     _;
   }
 
   modifier initialised() {
-    require(eventIdSet);
+    require(eventIdSet, "EventIdSet not yet initialised to true");
     _;
   }
 

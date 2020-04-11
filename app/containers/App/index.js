@@ -43,12 +43,7 @@ import {
   makeSelectNetworkId,
   makeSelectOnWeb3Provider,
 } from './selectors';
-import {
-  loadNetworkId,
-  loadAccounts,
-  changeOnWeb3Provider,
-  loginMetamask,
-} from './actions';
+import { loadNetworkId, loadAccounts, changeOnWeb3Provider } from './actions';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -70,12 +65,7 @@ export function App(props) {
   }, []);
 
   const { networkId, accounts, onWeb3Provider } = props;
-  const {
-    onLoadNetworkId,
-    onLoadAccounts,
-    onChangeWeb3Provider,
-    onMetamaskLogin,
-  } = props;
+  const { onLoadNetworkId, onLoadAccounts, onChangeWeb3Provider } = props;
 
   // Check if user has Metamask on browsr
   const checkMetamaskSupport = async () => {
@@ -94,19 +84,14 @@ export function App(props) {
     }
   };
 
-  // Handle Metamask Login
-  const onHandleMetamaskLogin = async () => {
-    const web3 = await loadWeb3();
-    onMetamaskLogin();
-    // Get networkId
-    const currentNetworkId = await web3.eth.net.getId();
-    onLoadNetworkId(currentNetworkId);
-  };
-
   const loadWeb3 = async () => {
     if (window.ethereum) {
       window.web3 = await new Web3(window.ethereum);
       await window.ethereum.enable();
+      const currentNetworkId = await web3.eth.net.getId();
+      onLoadNetworkId(currentNetworkId);
+      const currentAccounts = await web3.eth.getAccounts();
+      onLoadAccounts(currentAccounts);
     } else if (window.web3) {
       window.web3 = await new Web3(window.web3.currentProvider);
     } else {
@@ -135,18 +120,15 @@ export function App(props) {
   // Event that notifies whenever the account/address in metamask change
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', newAccounts => {
-      window.location.reload();
-      // onLoadAccounts(newAccounts);
+      // window.location.reload();
+      onLoadAccounts(newAccounts);
     });
   }
 
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <Header
-        account={accounts[0]}
-        onHandleMetamaskLogin={onHandleMetamaskLogin}
-      />
+      <Header account={accounts[0]} onHandleMetamaskLogin={loadWeb3} />
       <ConnectionBanner
         currentNetwork={networkId}
         requiredNetwork={5777}
@@ -195,7 +177,6 @@ App.propTypes = {
   onLoadAccounts: PropTypes.func,
   onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
-  onMetamaskLogin: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -210,7 +191,6 @@ function mapDispatchToProps(dispatch) {
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
-    onMetamaskLogin: () => dispatch(loginMetamask()),
   };
 }
 
