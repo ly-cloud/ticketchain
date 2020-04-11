@@ -1,7 +1,7 @@
 import { takeLatest, call, put, cps } from 'redux-saga/effects';
 import Web3 from 'web3';
 import { LOAD_TICKETS } from './constants';
-import { loadedEvents, loadedTickets } from './actions';
+import { loadedEvents } from './actions';
 import * as api from '../../utils/apiManager';
 import EventTicket from '../../../build/contracts/EventTicket.json';
 // Individual exports for testing
@@ -49,32 +49,9 @@ export function* loadAllTicketsOwned() {
     events.push(eventObj);
   }
 
-  // Fetch on-chain ticket data
-  const tickets = [];
-  for (const ticketOffChain of ticketsOffChain) {
-    const eventRes = yield call(api.getEventbyEventId, ticketOffChain.eventId);
-    const { event } = eventRes.data;
-    const eventContractInstance = new web3.eth.Contract(
-      EventTicket.abi,
-      event.address,
-    );
-    const ticketDetails = yield eventContractInstance.methods
-      .tickets(ticketOffChain.ticketId)
-      .call();
-    const ticketObj = {
-      ticketId: ticketDetails[0],
-      originalPrice: ticketDetails[1],
-      seatNumber: ticketDetails[2],
-      currOwner: ticketDetails[3],
-      prevOwner: ticketDetails[4],
-    };
-    tickets.push(ticketObj);
-  }
-  console.log(tickets);
   console.log(events);
 
   yield put(loadedEvents(events));
-  yield put(loadedTickets(tickets));
 }
 
 export default function* myTicketsPageSaga() {
