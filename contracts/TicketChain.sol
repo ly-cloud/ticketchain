@@ -23,19 +23,19 @@ contract TicketChain {
   }
 
   modifier onlyOwner() {
-    require(msg.sender == OWNER);
+    require(msg.sender == OWNER, "Sender not authorized, only owner can call");
     _;
   }
 
   modifier validEvent(uint256 eventId) {
-    require(eventId <= eventIdCounter);
+    require(eventId <= eventIdCounter, "Invalid Event as eventId has to be <= eventIdCounter");
     _;
   }
 
   modifier onlyTicketOwner(uint256 eventId, uint256 ticketId) {
     EventTicket eventTicket = events[eventId];
-    require(msg.sender == eventTicket.getPrevOwner(ticketId));
-    require(address(this) == eventTicket.getCurrOwner(ticketId));
+    require(msg.sender == eventTicket.getPrevOwner(ticketId), "Sender is not the previous owner");
+    require(address(this) == eventTicket.getCurrOwner(ticketId), "TicketChain contract is not the current owner");
     _;
   }
 
