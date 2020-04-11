@@ -135,8 +135,8 @@ export function App(props) {
   // Event that notifies whenever the account/address in metamask change
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', newAccounts => {
-      window.location.reload();
-      // onLoadAccounts(newAccounts);
+      // window.location.reload();
+      onLoadAccounts(newAccounts);
     });
   }
 

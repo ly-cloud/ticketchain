@@ -33,15 +33,12 @@ export function* loadEvents() {
     const requestURL = `${
       process.env.BACKEND_API_URL
     }/eventOrganiser/ownerAddress/${addressStr}`;
-
     const res = yield call(request, requestURL, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
       },
     });
-
-    // const contracts = res.events.map(event => event.address);
     const events = res.events.map(({ address, imageUrl, description }) => ({
       address,
       imageUrl,
@@ -79,22 +76,27 @@ export function* mintTicket() {
     const contract = yield select(makeSelectSelectedContract());
     const massMint = yield select(makeSelectMassMint());
     const seatNumber = yield select(makeSelectSeatNumber());
-    const price = yield select(makeSelectPrice());
-    const quantity = yield select(makeSelectQuantity());
-    if (seatNumber < 0 || price < 0) {
+    if (seatNumber < 0) {
       return;
     }
+    const priceStr = yield select(makeSelectPrice());
+    const priceWei = web3.utils.toWei(priceStr, 'wei');
+    if (priceWei.includes('-')) {
+      return;
+    }
+    const quantity = yield select(makeSelectQuantity());
+
     const instance = new web3.eth.Contract(EventTicket.abi, contract);
     if (massMint) {
       if (quantity > 0) {
         yield instance.methods
-          .massMint(price, seatNumber, quantity)
+          .massMint(priceWei, seatNumber, quantity)
           .send({ from: accounts[0] });
         yield put(mintTicketSuccess('Tickets minted successfully!'));
       }
     } else {
       yield instance.methods
-        .mint(price, seatNumber)
+        .mint(priceWei, seatNumber)
         .send({ from: accounts[0] });
       yield put(mintTicketSuccess('Ticket minted successfully!'));
     }
