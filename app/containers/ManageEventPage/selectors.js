@@ -66,6 +66,12 @@ const makeSelectOpenListTickets = () =>
     substate => substate.openListTickets,
   );
 
+const makeSelectOpenWithdrawEarnings = () =>
+  createSelector(
+    selectManageEventPageDomain,
+    substate => substate.openWithdrawEarnings,
+  );
+
 export {
   selectManageEventPageDomain,
   makeSelectEvents,
@@ -77,4 +83,5 @@ export {
   makeSelectPrice,
   makeSelectQuantity,
   makeSelectOpenListTickets,
+  makeSelectOpenWithdrawEarnings,
 };

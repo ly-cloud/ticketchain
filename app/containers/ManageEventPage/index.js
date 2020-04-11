@@ -43,6 +43,7 @@ import {
   makeSelectMassMint,
   makeSelectOpenMintTicket,
   makeSelectOpenListTickets,
+  makeSelectOpenWithdrawEarnings,
 } from './selectors';
 import reducer from './reducer';
 import saga from './saga';
@@ -57,6 +58,8 @@ import {
   mintTicket,
   changeOpenListTickets,
   listTickets,
+  changeOpenWithdrawEarnings,
+  withdrawEarnings,
 } from './actions';
 
 const key = 'manageEventPage';
@@ -104,6 +107,9 @@ export function ManageEventPage({
   openListTickets,
   onChangeOpenListTickets,
   onListTickets,
+  openWithdrawEarnings,
+  onChangeOpenWithdrawEarnings,
+  onWithdrawEarnings,
 }) {
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
@@ -209,6 +215,33 @@ export function ManageEventPage({
           </DialogActions>
         </DialogContent>
       </Dialog>
+      <Dialog
+        open={openWithdrawEarnings}
+        onClose={() => onChangeOpenWithdrawEarnings('')}
+      >
+        <DialogTitle>Withdraw Earnings</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to withdraw the ether balance from this
+            contract?
+          </DialogContentText>
+          <DialogActions>
+            <Button
+              onClick={() => onChangeOpenWithdrawEarnings('')}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => onWithdrawEarnings()}
+              color="primary"
+              autoFocus
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
       <Container className={classes.cardGrid} maxWidth="md">
         <Grid container spacing={4}>
           {createdEvents.map(event => (
@@ -236,7 +269,12 @@ export function ManageEventPage({
                   <Typography gutterBottom variant="subtitle1">
                     {event.venue}
                   </Typography>
-                  <Typography variant="caption">{event.description}</Typography>
+                  <Typography gutterBottom variant="caption">
+                    {event.description}
+                  </Typography>
+                  <Typography variant="subtitle1">
+                    Current Balance: {event.balance} eth
+                  </Typography>
                 </CardContent>
                 <CardActions>
                   <Button
@@ -268,6 +306,7 @@ export function ManageEventPage({
                     disabled={!event.isListed}
                     size="small"
                     color="primary"
+                    onClick={() => onChangeOpenWithdrawEarnings(event.address)}
                   >
                     Withdraw Earnings
                   </Button>
@@ -286,7 +325,7 @@ ManageEventPage.propTypes = {
   createdEvents: PropTypes.arrayOf(PropTypes.object),
   accounts: PropTypes.arrayOf(PropTypes.string),
   onLoad: PropTypes.func,
-  //Mint Ticket
+  // Mint Ticket
   openMintTicket: PropTypes.bool,
   massMint: PropTypes.bool,
   onChangeOpenMintTicket: PropTypes.func,
@@ -295,10 +334,14 @@ ManageEventPage.propTypes = {
   onChangePrice: PropTypes.func,
   onChangeQuantity: PropTypes.func,
   onMintTicket: PropTypes.func,
-  //List Tickets
+  // List Tickets
   openListTickets: PropTypes.bool,
   onChangeOpenListTickets: PropTypes.func,
   onListTickets: PropTypes.func,
+  // Withdraw Earnings
+  openWithdrawEarnings: PropTypes.bool,
+  onChangeOpenWithdrawEarnings: PropTypes.func,
+  onWithdrawEarnings: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -308,6 +351,7 @@ const mapStateToProps = createStructuredSelector({
   openMintTicket: makeSelectOpenMintTicket(),
   massMint: makeSelectMassMint(),
   openListTickets: makeSelectOpenListTickets(),
+  openWithdrawEarnings: makeSelectOpenWithdrawEarnings(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -329,6 +373,11 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeOpenListTickets());
     },
     onListTickets: () => dispatch(listTickets()),
+    onChangeOpenWithdrawEarnings: address => {
+      dispatch(changeSelectedContract(address));
+      dispatch(changeOpenWithdrawEarnings());
+    },
+    onWithdrawEarnings: () => dispatch(withdrawEarnings()),
   };
 }
 
