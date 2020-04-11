@@ -25,5 +25,3 @@ build/
 coverage
 build
 stats.json
-test/ticketChain.js
-package-lock.json
