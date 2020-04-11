@@ -50,7 +50,6 @@ import {
   loadNetworkId,
   loadAccounts,
   changeOnWeb3Provider,
-  loginMetamask,
   changeSidebarOpen,
 } from './actions';
 
@@ -92,7 +91,6 @@ export function App(props) {
     onLoadNetworkId,
     onLoadAccounts,
     onChangeWeb3Provider,
-    onMetamaskLogin,
     onChangeSidebarOpen,
   } = props;
 
@@ -113,19 +111,15 @@ export function App(props) {
     }
   };
 
-  // Handle Metamask Login
-  const onHandleMetamaskLogin = async () => {
-    const web3 = await loadWeb3();
-    onMetamaskLogin();
-    // Get networkId
-    const currentNetworkId = await web3.eth.net.getId();
-    onLoadNetworkId(currentNetworkId);
-  };
-
   const loadWeb3 = async () => {
     if (window.ethereum) {
-      window.web3 = await new Web3(window.ethereum);
       await window.ethereum.enable();
+      let { web3 } = window;
+      web3 = new Web3(window.ethereum);
+      const currentNetworkId = await web3.eth.net.getId();
+      onLoadNetworkId(currentNetworkId);
+      const currentAccounts = await web3.eth.getAccounts();
+      onLoadAccounts(currentAccounts);
     } else if (window.web3) {
       window.web3 = await new Web3(window.web3.currentProvider);
     } else {
@@ -168,7 +162,7 @@ export function App(props) {
       <Header
         account={accounts[0]}
         sidebarOpen={sidebarOpen}
-        onHandleMetamaskLogin={onHandleMetamaskLogin}
+        onHandleMetamaskLogin={loadWeb3}
         onChangeSidebarOpen={onChangeSidebarOpen}
       />
       <ToastContainer
@@ -230,7 +224,6 @@ App.propTypes = {
   onLoadAccounts: PropTypes.func,
   onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
-  onMetamaskLogin: PropTypes.func,
   onChangeSidebarOpen: PropTypes.func,
 };
 
@@ -247,7 +240,6 @@ function mapDispatchToProps(dispatch) {
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
-    onMetamaskLogin: () => dispatch(loginMetamask()),
     onChangeSidebarOpen: sidebarOpen => {
       dispatch(changeSidebarOpen(sidebarOpen));
     },
