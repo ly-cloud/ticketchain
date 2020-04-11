@@ -29,6 +29,7 @@ import ManageEventPage from 'containers/ManageEventPage/Loadable';
 import CreateEventPage from 'containers/CreateEventPage/Loadable';
 import ViewEventPage from 'containers/ViewEventPage/Loadable';
 import MyTicketsPage from 'containers/MyTicketsPage/Loadable';
+import ViewMyTicketPage from 'containers/ViewMyTicketPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import Sidebar from 'components/Sidebar';
@@ -197,6 +198,14 @@ export function App(props) {
         />
         <Switch>
           <Route exact path="/" component={HomePage} />
+          <Route exact path="/manageEvent" component={ManageEventPage} />
+          <Route exact path="/createEvent" component={CreateEventPage} />
+          <Route exact path="/myTickets" component={MyTicketsPage} />
+          <Route
+            exact
+            path="/myTickets/:eventId"
+            component={ViewMyTicketPage}
+          />
           <Route exact path="/event/:eventId" component={ViewEventPage} />
           {accounts.length > 0 && (
             <Route exact path="/manageEvent" component={ManageEventPage} />
