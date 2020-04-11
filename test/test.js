@@ -4,20 +4,21 @@ const TicketChain = artifacts.require("TicketChain");
 contract("TicketChain", accounts => {
   let chain;
   let event;
-  let commission = 200000000;
-  let newCommission = 100000000;
-  let originalPrice = 4000000000;
-  let belowPrice = 2000000000;
-  let abovePrice = 8000000000;
+  let commission = 20;
+  let newCommission = 10;
+  let originalPrice = 400;
+  let belowPrice = 200;
+  let abovePrice = 800;
   let startSeatNum = 0;
   let quantity = 2;
   let newSeatNum = 10;
+  let currDateTime = Math.floor(new Date().getTime()/1000);
+  let day = 86400;
   const chainOwner = accounts[0];
   const organiser = accounts[1];
   const buyerA = accounts[2];
   const buyerB = accounts[3];
   const buyerC = accounts[4];
-
 
   it("Owner deploy TicketChain and set commission", () => 
     TicketChain.deployed({ from: chainOwner })
@@ -27,7 +28,7 @@ contract("TicketChain", accounts => {
     }).then(() => {
       return chain.getCommission.call();
     }).then(rsl => {
-        assert.equal(rsl.valueOf(), commission);
+      assert.equal(rsl.valueOf(), commission);
     })
   );
 
@@ -51,25 +52,25 @@ contract("TicketChain", accounts => {
       assert.equal(rsl[3].valueOf(), 'Test Venue');
 
       //Event Date Time
-      event.updateEventDateTime(1585926529);
+      event.updateEventDateTime(currDateTime + day);
     }).then(() => {
       return event.getEvent();
     }).then((rsl) => {
-      assert.equal(rsl[2].valueOf(), 1585926529);
+      assert.equal(rsl[2].valueOf(), currDateTime + day);
 
       //Open Sale Time
-      event.updateOpenSaleTime(1222926529);
+      event.updateOpenSaleTime(currDateTime);
     }).then(() => {
       return event.getEvent();
     }).then((rsl) => {
-      assert.equal(rsl[4].valueOf(), 1222926529);
+      assert.equal(rsl[4].valueOf(), currDateTime);
 
       //Closing Sale Time
-      event.updateClosingSaleTime(1288926529);
+      event.updateClosingSaleTime(currDateTime + day/4);
     }).then(() => {
       return event.getEvent();
     }).then((rsl) => {
-      assert.equal(rsl[5].valueOf(), 1288926529);
+      assert.equal(rsl[5].valueOf(), currDateTime + day/4);
     })
   );    
 
@@ -163,16 +164,16 @@ contract("TicketChain", accounts => {
     }).catch((err4) => {
       console.log("Assert.fail tested: Unable to update Closing Sale Time as tickets are listed");
     })
-  );    
+  );
 
   it("Buyer A buys 2 tickets", () => 
-    chain.buy(1, 1, {from: buyerA, value: 2000000000000000000})
+    chain.buy(1, 1, {from: buyerA, value: 2000})
     .then(() => {
       return event.getCurrOwner(1);
     }).then((rsl) => {
       assert.equal(rsl.valueOf(), buyerA, "Buyer A was not able to purchase ticket with id = 1"); 
 
-      chain.buy(1, 2, { from: buyerA, value: 2000000000000000000});
+      chain.buy(1, 2, { from: buyerA, value: 2000});
     }).then(() => {
       return event.getCurrOwner(2);
     }).then(rsl => {
@@ -201,7 +202,7 @@ contract("TicketChain", accounts => {
   );
 
   it("Buyer B buys 1 ticket", () => 
-    chain.buy(1, 1, {from: buyerB, value: 1000000000000000000})
+    chain.buy(1, 1, {from: buyerB, value: 1000})
     .then(() => {
       return event.getCurrOwner(1);
     }).then(rsl => {
@@ -219,7 +220,7 @@ contract("TicketChain", accounts => {
   );
 
   it("Buyer C buys 1 ticket", () => 
-    chain.buy(1, 3, {from: buyerC, value: 2000000000000000000})
+    chain.buy(1, 3, {from: buyerC, value: 2000})
     .then(() => {
       return event.getCurrOwner(3);
     }).then((rsl) => {

@@ -99,15 +99,12 @@ contract TicketChain {
     require(ticketsListing[eventId][ticketId].listed, "Ticket is not listed.");
     EventTicket eventTicket = events[eventId];
     require(msg.value >= ticketsListing[eventId][ticketId].price, "msg.value is not sufficient");
-    //comment out for testing
     require( now >= eventTicket.openSaleTime() && now < eventTicket.closingSaleTime(), "Not within sale time" );
 
-    address payable recipient = address(
-      uint160(eventTicket.getPrevOwner(ticketId))
-    );
+    address payable recipient = address(uint160(eventTicket.getPrevOwner(ticketId)));
+
     delete ticketsListing[eventId][ticketId];
     eventTicket.transferTo(ticketId, msg.sender);
-    //comment out for testing and use this: recipient.send(msg.value - commission);
     recipient.transfer(msg.value - commission);
   }
 
@@ -126,4 +123,6 @@ contract TicketChain {
   function getPrice(uint256 eventId, uint256 ticketId) public view returns(uint256) {
     return ticketsListing[eventId][ticketId].price;
   }
+
+  function() external payable {}
 }

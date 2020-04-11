@@ -94,7 +94,7 @@ module.exports = {
           runs: 200,
         },
         evmVersion: 'petersburg',
-      },
-    },
-  },
-};
+      }
+    }
+  }
+}
