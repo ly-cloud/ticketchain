@@ -8,12 +8,14 @@ import {
   LOAD_ACCOUNTS,
   LOAD_NETWORKID,
   CHANGE_ONWEB3PROVIDER,
+  CHANGE_SIDEBAR_OPEN,
 } from './constants';
 
 export const initialState = {
   accounts: [],
   networkId: 0,
   onWeb3Provider: true,
+  sidebarOpen: false,
 };
 
 /* eslint-disable default-case, no-param-reassign */
@@ -28,6 +30,9 @@ const appReducer = (state = initialState, action) =>
         break;
       case CHANGE_ONWEB3PROVIDER:
         draft.onWeb3Provider = action.onWeb3Provider;
+        break;
+      case CHANGE_SIDEBAR_OPEN:
+        draft.sidebarOpen = action.sidebarOpen;
         break;
     }
   });

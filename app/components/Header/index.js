@@ -5,20 +5,21 @@
  */
 
 import React from 'react';
+import clsx from 'clsx';
 import { AppBar, Toolbar, IconButton, Button, Box } from '@material-ui/core';
 import { Link } from 'react-router-dom';
-import MenuIcon from '@material-ui/icons/Menu';
 import Identicon from 'identicon.js';
 import Typography from '@material-ui/core/Typography';
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { Text } from 'rimble-ui';
 import { makeStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 
+const drawerWidth = 240;
+
 const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
-  },
   menuButton: {
     marginRight: theme.spacing(2),
   },
@@ -30,25 +31,57 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 'auto',
     marginRight: -12,
   },
+  appBar: {
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
 }));
 
 function Header(props) {
-  const { account } = props;
-  const { onHandleMetamaskLogin } = props;
+  const { account, sidebarOpen } = props;
+  const { onHandleMetamaskLogin, onChangeSidebarOpen } = props;
   const classes = useStyles();
 
   return (
-    // <div className={classes.root}> // Commented for sticky header
-    <AppBar position="sticky">
+    <AppBar
+      position="sticky"
+      className={clsx(classes.appBar, {
+        [classes.appBarShift]: sidebarOpen,
+      })}
+    >
       <Toolbar>
-        <IconButton
-          edge="start"
-          className={classes.menuButton}
-          color="inherit"
-          aria-label="menu"
-        >
-          <MenuIcon />
-        </IconButton>
+        {account && !sidebarOpen && (
+          <IconButton
+            edge="start"
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="menu"
+            onClick={() => onChangeSidebarOpen(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+        {account && sidebarOpen && (
+          <IconButton
+            edge="start"
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="menu"
+            onClick={() => onChangeSidebarOpen(false)}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+        )}
         <Typography
           component={Link}
           variant="h6"
@@ -110,7 +143,9 @@ function Header(props) {
 
 Header.propTypes = {
   account: PropTypes.string,
+  sidebarOpen: PropTypes.bool,
   onHandleMetamaskLogin: PropTypes.func,
+  onChangeSidebarOpen: PropTypes.func,
 };
 
 export default Header;
