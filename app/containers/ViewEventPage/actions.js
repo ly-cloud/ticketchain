@@ -60,8 +60,8 @@ export function buyTicketBackend(eventId) {
 }
 
 export function buyTicketBackendSuccess(res) {
-  toast.dismiss(loadEventToastId);
-  loadEventToastId = null;
+  toast.dismiss(buyTicketBackendToastId);
+  buyTicketBackendToastId = null;
   toast.success(res.message, {
     containerId: 'default',
   });
@@ -71,8 +71,8 @@ export function buyTicketBackendSuccess(res) {
 }
 
 export function buyTicketBackendError(error) {
-  toast.dismiss(loadEventToastId);
-  loadEventToastId = null;
+  toast.dismiss(buyTicketBackendToastId);
+  buyTicketBackendToastId = null;
   toast.error(error.message, {
     containerId: 'default',
   });

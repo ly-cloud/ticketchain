@@ -8,6 +8,7 @@
  */
 
 import React, { useEffect } from 'react';
+import clsx from 'clsx';
 import { Switch, Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -30,6 +31,7 @@ import ViewEventPage from 'containers/ViewEventPage/Loadable';
 import MyTicketsPage from 'containers/MyTicketsPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
+import Sidebar from 'components/Sidebar';
 import ConnectionBanner from '@rimble/connection-banner';
 
 import reducer from './reducer';
@@ -42,17 +44,37 @@ import {
   makeSelectAccounts,
   makeSelectNetworkId,
   makeSelectOnWeb3Provider,
+  makeSelectSidebarOpen,
 } from './selectors';
-import { loadNetworkId, loadAccounts, changeOnWeb3Provider } from './actions';
+import {
+  loadNetworkId,
+  loadAccounts,
+  changeOnWeb3Provider,
+  changeSidebarOpen,
+} from './actions';
 
-const useStyles = makeStyles(() => ({
+const drawerWidth = 240;
+const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
     minHeight: '100vh',
     flexDirection: 'column',
   },
-  main: {
-    flex: 1,
+  content: {
+    flexGrow: 1,
+    // padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: 0,
+  },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: drawerWidth,
   },
 }));
 
@@ -64,8 +86,13 @@ export function App(props) {
     checkMetamaskSupport();
   }, []);
 
-  const { networkId, accounts, onWeb3Provider } = props;
-  const { onLoadNetworkId, onLoadAccounts, onChangeWeb3Provider } = props;
+  const { networkId, accounts, onWeb3Provider, sidebarOpen } = props;
+  const {
+    onLoadNetworkId,
+    onLoadAccounts,
+    onChangeWeb3Provider,
+    onChangeSidebarOpen,
+  } = props;
 
   // Check if user has Metamask on browsr
   const checkMetamaskSupport = async () => {
@@ -86,8 +113,9 @@ export function App(props) {
 
   const loadWeb3 = async () => {
     if (window.ethereum) {
-      window.web3 = await new Web3(window.ethereum);
       await window.ethereum.enable();
+      let { web3 } = window;
+      web3 = new Web3(window.ethereum);
       const currentNetworkId = await web3.eth.net.getId();
       onLoadNetworkId(currentNetworkId);
       const currentAccounts = await web3.eth.getAccounts();
@@ -120,7 +148,6 @@ export function App(props) {
   // Event that notifies whenever the account/address in metamask change
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', newAccounts => {
-      // window.location.reload();
       onLoadAccounts(newAccounts);
     });
   }
@@ -128,11 +155,15 @@ export function App(props) {
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <Header account={accounts[0]} onHandleMetamaskLogin={loadWeb3} />
-      <ConnectionBanner
-        currentNetwork={networkId}
-        requiredNetwork={5777}
-        onWeb3Fallback={!onWeb3Provider} //	True to display install metamask message
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        onChangeSidebarOpen={onChangeSidebarOpen}
+      />
+      <Header
+        account={accounts[0]}
+        sidebarOpen={sidebarOpen}
+        onHandleMetamaskLogin={loadWeb3}
+        onChangeSidebarOpen={onChangeSidebarOpen}
       />
       <ToastContainer
         enableMultiContainer
@@ -154,13 +185,28 @@ export function App(props) {
         closeButton={false}
         closeOnClick={false}
       />
-      <div className={classes.main}>
+      <div
+        className={clsx(classes.content, {
+          [classes.contentShift]: sidebarOpen,
+        })}
+      >
+        <ConnectionBanner
+          currentNetwork={networkId}
+          requiredNetwork={5777}
+          onWeb3Fallback={!onWeb3Provider} //	True to display install metamask message
+        />
         <Switch>
           <Route exact path="/" component={HomePage} />
-          <Route exact path="/manageEvent" component={ManageEventPage} />
-          <Route exact path="/createEvent" component={CreateEventPage} />
-          <Route exact path="/myTickets" component={MyTicketsPage} />
           <Route exact path="/event/:eventId" component={ViewEventPage} />
+          {accounts.length > 0 && (
+            <Route exact path="/manageEvent" component={ManageEventPage} />
+          )}
+          {accounts.length > 0 && (
+            <Route exact path="/createEvent" component={CreateEventPage} />
+          )}
+          {accounts.length > 0 && (
+            <Route exact path="/myTickets" component={MyTicketsPage} />
+          )}
           <Route component={NotFoundPage} />
         </Switch>
       </div>
@@ -174,15 +220,18 @@ App.propTypes = {
   networkId: PropTypes.number,
   accounts: PropTypes.arrayOf(String),
   onWeb3Provider: PropTypes.bool,
+  sidebarOpen: PropTypes.bool,
   onLoadAccounts: PropTypes.func,
   onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
+  onChangeSidebarOpen: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
   networkId: makeSelectNetworkId(),
   accounts: makeSelectAccounts(),
   onWeb3Provider: makeSelectOnWeb3Provider(),
+  sidebarOpen: makeSelectSidebarOpen(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -191,6 +240,9 @@ function mapDispatchToProps(dispatch) {
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
+    onChangeSidebarOpen: sidebarOpen => {
+      dispatch(changeSidebarOpen(sidebarOpen));
+    },
   };
 }
 

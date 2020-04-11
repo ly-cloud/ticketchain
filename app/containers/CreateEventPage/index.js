@@ -179,7 +179,6 @@ export function CreateEventPage(props) {
               id="eventDateTime"
               label="Date and Time"
               name="eventDateTime"
-              autoFocus
               type="datetime-local"
               InputLabelProps={{
                 shrink: true,
@@ -195,7 +194,6 @@ export function CreateEventPage(props) {
               id="eventVenue"
               label="Event Venue"
               name="eventVenue"
-              autoFocus
               value={eventVenue}
               onChange={onChangeEventVenue}
             />
@@ -207,7 +205,6 @@ export function CreateEventPage(props) {
                 id="eventStartSale"
                 label="Start of Sale"
                 name="eventStartSale"
-                autoFocus
                 type="datetime-local"
                 InputLabelProps={{
                   shrink: true,
@@ -222,7 +219,6 @@ export function CreateEventPage(props) {
                 id="eventEndSale"
                 label="End of Sale"
                 name="eventEndSale"
-                autoFocus
                 type="datetime-local"
                 InputLabelProps={{
                   shrink: true,
@@ -239,7 +235,6 @@ export function CreateEventPage(props) {
               id="eventDes"
               label="Event Description"
               name="eventDes"
-              autoFocus
               multiline
               rows="4"
               value={eventDes}
@@ -253,7 +248,6 @@ export function CreateEventPage(props) {
               id="eventImage"
               label="Event Banner URL"
               name="eventImage"
-              autoFocus
               value={eventImage}
               onChange={onChangeEventImage}
             />

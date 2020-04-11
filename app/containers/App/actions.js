@@ -8,6 +8,7 @@ import {
   LOAD_ACCOUNTS,
   LOAD_NETWORKID,
   CHANGE_ONWEB3PROVIDER,
+  CHANGE_SIDEBAR_OPEN,
   LOGIN_METAMASK,
   LOGIN_SUCCESS,
   LOGIN_ERROR,
@@ -56,6 +57,13 @@ export function changeOnWeb3Provider(onWeb3Provider) {
   return {
     type: CHANGE_ONWEB3PROVIDER,
     onWeb3Provider,
+  };
+}
+
+export function changeSidebarOpen(sidebarOpen) {
+  return {
+    type: CHANGE_SIDEBAR_OPEN,
+    sidebarOpen,
   };
 }
 

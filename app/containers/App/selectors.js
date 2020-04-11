@@ -29,9 +29,16 @@ const makeSelectOnWeb3Provider = () =>
     substate => substate.onWeb3Provider,
   );
 
+const makeSelectSidebarOpen = () =>
+  createSelector(
+    selectAppDomain,
+    substate => substate.sidebarOpen,
+  );
+
 export {
   makeSelectLocation,
   makeSelectAccounts,
   makeSelectNetworkId,
   makeSelectOnWeb3Provider,
+  makeSelectSidebarOpen,
 };
