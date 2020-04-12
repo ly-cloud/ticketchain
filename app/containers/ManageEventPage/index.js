@@ -116,6 +116,9 @@ export function ManageEventPage({
   useEffect(() => {
     if (window.ethereum.selectedAddress) {
       onLoad();
+      window.ethereum.on('accountsChanged', () => {
+        onLoad();
+      });
     } else {
       window.alert('Please install and enable MetaMask to continue.');
     }
