@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.5;
 
 import './TicketChain.sol';
 
@@ -44,17 +44,20 @@ contract EventTicket {
   }
 
   modifier onlyOwner() {
-    require(msg.sender == OWNER, "msg.sender is not OWNER");
+    require(msg.sender == OWNER, 'Only callable by contract owner');
     _;
   }
 
   modifier onlyTicketOwner(uint256 ticketId) {
-    require(msg.sender == tickets[ticketId].currOwner, "msg.sender is not ticket owner");
+    require(
+      msg.sender == tickets[ticketId].currOwner,
+      'Only callable by ticket owner'
+    );
     _;
   }
 
   modifier initialised() {
-    require(eventIdSet, "event not initialise");
+    require(eventIdSet, 'Event not initialised');
     _;
   }
 
@@ -76,7 +79,7 @@ contract EventTicket {
     initialised
     returns (uint256)
   {
-    require(!isListed);
+    require(!isListed, 'Tickets already listed');
     ticketIdCounter++;
     Ticket memory newTicket = Ticket(
       ticketIdCounter,
@@ -94,7 +97,7 @@ contract EventTicket {
     onlyOwner
     initialised
   {
-    require(!isListed, "Tickets listed already");
+    require(!isListed, 'Tickets already listed');
     Ticket memory newTicket;
     for (uint256 i = 0; i < quantity; i++) {
       ticketIdCounter++;
@@ -119,10 +122,15 @@ contract EventTicket {
   }
 
   function massList() public initialised onlyOwner {
-    require(!isListed, "Tickets listed already");
+    require(!isListed, 'Tickets already listed');
     for (uint256 i = 1; i <= ticketIdCounter; i++) {
       tickets[i].currOwner = address(ticketChain);
-      ticketChain.list(eventId, i, tickets[i].originalPrice, tickets[i].seatNumber);
+      ticketChain.list(
+        eventId,
+        i,
+        tickets[i].originalPrice,
+        tickets[i].seatNumber
+      );
     }
     isListed = true;
   }
@@ -132,7 +140,7 @@ contract EventTicket {
     initialised
     onlyTicketOwner(ticketId)
   {
-    require(msg.sender == address(ticketChain), "msg.sender is not TicketChain");
+    require(msg.sender == address(ticketChain), 'Only callable by TicketChain');
     tickets[ticketId].prevOwner = tickets[ticketId].currOwner;
     tickets[ticketId].currOwner = newOwner;
   }
@@ -142,31 +150,48 @@ contract EventTicket {
   }
 
   function withdraw() public onlyOwner {
+    require(isListed, 'Tickets not yet listed');
     msg.sender.transfer(address(this).balance);
   }
 
   function updateEventName(string memory _eventName) public onlyOwner {
-    require(!isListed, "Tickets listed already");
+    require(!isListed, 'Tickets already listed');
     eventName = _eventName;
   }
 
   function updateEventDateTime(uint256 _eventDateTime) public onlyOwner {
-    require(!isListed, "Tickets listed already");
+    require(!isListed, 'Tickets already listed');
     eventDateTime = _eventDateTime;
   }
 
   function updateVenue(string memory _venue) public onlyOwner {
-    require(!isListed, "Tickets listed already");
+    require(!isListed, 'Tickets already listed');
     venue = _venue;
   }
 
   function updateOpenSaleTime(uint256 _openSaleTime) public onlyOwner {
-    require(!isListed, "Tickets listed already");
+    require(!isListed, 'Tickets already listed');
     openSaleTime = _openSaleTime;
   }
 
   function updateClosingSaleTime(uint256 _closingSaleTime) public onlyOwner {
-    require(!isListed, "Tickets listed already");
+    require(!isListed, 'Tickets already listed');
+    closingSaleTime = _closingSaleTime;
+  }
+
+  function updateEvent(
+    string memory _eventName,
+    uint256 _eventDateTime,
+    string memory _venue,
+    uint256 _openSaleTime,
+    uint256 _closingSaleTime
+  ) public onlyOwner {
+    require(!isListed, 'Tickets already listed');
+
+    eventName = _eventName;
+    eventDateTime = _eventDateTime;
+    venue = _venue;
+    openSaleTime = _openSaleTime;
     closingSaleTime = _closingSaleTime;
   }
 
