@@ -17,7 +17,7 @@ export const initialState = {
   tickets: [],
   eventId: '',
   ticketListed: '',
-  price: 0,
+  price: '',
 };
 
 /* eslint-disable default-case, no-param-reassign */
