@@ -3,7 +3,7 @@ IS4302 project repo for Group 2 (4-6pm)
 
 This repo contains the Smart contracts, tests, and the frontend application for our DApp
 
-Please refer to [TicketingBackend](https://github.com/e0014768/TicketingBackend). for the repo for our backend repo.
+Please refer to [TicketingBackend](https://github.com/e0014768/TicketingBackend) for our backend repo.
 
 ## Install
 
@@ -11,11 +11,11 @@ Please refer to [TicketingBackend](https://github.com/e0014768/TicketingBackend)
 
 1) Run Ganache with port number 8545
 
-`ganache-cli -p 8545`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`ganache-cli -p 8545`
 
 2) Deploy the contracts
 
-`truffle migrate`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`truffle migrate`
 
 ### Frontend
 
@@ -28,8 +28,8 @@ BACKEND_API_URL = http://localhost:5000
 
 2) Install the dependencies
 
-`npm install`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`npm install`
 
 3) Start the application
 
-`npm start`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`npm start`
