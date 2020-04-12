@@ -16,3 +16,4 @@ export const CHANGE_SIDEBAR_OPEN = 'app/App/CHANGE_SIDEBAR_OPEN';
 export const LOGIN_METAMASK = 'app/App/LOGIN_METAMASK';
 export const LOGIN_SUCCESS = 'app/App/LOGIN_SUCCESS';
 export const LOGIN_ERROR = 'app/App/LOGIN_ERROR';
+export const COPY_SUCCESS = 'app/App/COPY_SUCCESS';

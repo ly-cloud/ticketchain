@@ -27,6 +27,7 @@ import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import ManageEventPage from 'containers/ManageEventPage/Loadable';
 import CreateEventPage from 'containers/CreateEventPage/Loadable';
+import EditEventPage from 'containers/EditEventPage/Loadable';
 import ViewEventPage from 'containers/ViewEventPage/Loadable';
 import MyTicketsPage from 'containers/MyTicketsPage/Loadable';
 import ViewMyTicketPage from 'containers/ViewMyTicketPage/Loadable';
@@ -52,6 +53,7 @@ import {
   loadAccounts,
   changeOnWeb3Provider,
   changeSidebarOpen,
+  copySuccess,
 } from './actions';
 
 const drawerWidth = 240;
@@ -93,6 +95,7 @@ export function App(props) {
     onLoadAccounts,
     onChangeWeb3Provider,
     onChangeSidebarOpen,
+    onCopySuccess,
   } = props;
 
   // Check if user has Metamask on browsr
@@ -166,6 +169,7 @@ export function App(props) {
         sidebarOpen={sidebarOpen}
         onHandleMetamaskLogin={loadWeb3}
         onChangeSidebarOpen={onChangeSidebarOpen}
+        onCopySuccess={onCopySuccess}
       />
       <ToastContainer
         enableMultiContainer
@@ -215,6 +219,9 @@ export function App(props) {
             <Route exact path="/createEvent" component={CreateEventPage} />
           )}
           {accounts.length > 0 && (
+            <Route exact path="/editEvent/:eventId" component={EditEventPage} />
+          )}
+          {accounts.length > 0 && (
             <Route exact path="/myTickets" component={MyTicketsPage} />
           )}
           <Route component={NotFoundPage} />
@@ -235,6 +242,7 @@ App.propTypes = {
   onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
   onChangeSidebarOpen: PropTypes.func,
+  onCopySuccess: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -252,6 +260,9 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
     onChangeSidebarOpen: sidebarOpen => {
       dispatch(changeSidebarOpen(sidebarOpen));
+    },
+    onCopySuccess: () => {
+      dispatch(copySuccess());
     },
   };
 }

@@ -15,7 +15,7 @@ import Web3 from 'web3';
 import { compose } from 'redux';
 
 import { makeStyles } from '@material-ui/core/styles';
-import { Paper, Typography, Grid, Container } from '@material-ui/core';
+import { Paper, Typography, Grid, Container, Tooltip } from '@material-ui/core';
 import Image from 'material-ui-image';
 import MaterialTable from 'material-table';
 
@@ -57,6 +57,7 @@ import saga from './saga';
 // Import ABIs
 import TicketChain from '../../../build/contracts/TicketChain.json';
 import EventTicket from '../../../build/contracts/EventTicket.json';
+import { copySuccess } from '../App/actions';
 
 const useStyles = makeStyles(theme => ({
   imageContent: {
@@ -133,7 +134,8 @@ export function ViewEventPage(props) {
     onPushTicket,
     onChangeTicket,
     onChangeModalIsOpen,
-    onChangeTransactionFee,
+    // onChangeTransactionFee,
+    onCopySuccess,
   } = props;
   const currentTime = new Date();
   useInjectReducer({ key: 'viewEventPage', reducer });
@@ -222,13 +224,13 @@ export function ViewEventPage(props) {
           TicketChain.abi,
           networkData.address,
         );
-        const estimateGas = await ticketChainInstance.methods
-          .buy(match.params.eventId, ticketId)
-          .estimateGas({ from: accounts[0], value: price });
-        const gasPrice = await web3.eth.getGasPrice();
-        onChangeTransactionFee(
-          web3.utils.fromWei((estimateGas * gasPrice).toString(), 'ether'),
-        );
+        // const estimateGas = await ticketChainInstance.methods
+        //   .buy(match.params.eventId, ticketId)
+        //   .estimateGas({ from: accounts[0], value: price });
+        // const gasPrice = await web3.eth.getGasPrice();
+        // onChangeTransactionFee(
+        //   web3.utils.fromWei((estimateGas * gasPrice).toString(), 'ether'),
+        // );
         await ticketChainInstance.methods
           .buy(match.params.eventId, ticketId)
           .send({ from: accounts[0], value: price })
@@ -256,7 +258,7 @@ export function ViewEventPage(props) {
       />
       <Helmet>
         <title>TicketChain - {name}</title>
-        <meta name="description" content="TicketChain View Event Page" />
+        <meta name="description" content="TicketChain ViewEventPage" />
       </Helmet>
       <div className={classes.imageContent}>
         <Container maxWidth="md">
@@ -340,7 +342,7 @@ export function ViewEventPage(props) {
                       title: 'Seat Number',
                       field: 'seatNumber',
                       type: 'numeric',
-                      cellStyle: { textAlign: 'center' },
+                      cellStyle: { textAlign: 'left', paddingLeft: '40px' },
                       headerStyle: { textAlign: 'left' },
                     },
                     {
@@ -354,13 +356,23 @@ export function ViewEventPage(props) {
                     {
                       title: 'Seller',
                       field: 'seller',
-                      render: rowData =>
-                        `${rowData.seller.substring(
-                          0,
-                          6,
-                        )}...${rowData.seller.substring(
-                          rowData.seller.length - 4,
-                        )}`,
+                      cellStyle: { cursor: 'pointer' },
+                      render: rowData => (
+                        <Tooltip
+                          title={rowData.seller}
+                          onClick={() => {
+                            navigator.clipboard.writeText(rowData.seller);
+                            onCopySuccess();
+                          }}
+                        >
+                          <div>
+                            {rowData.seller.substring(0, 6)}...
+                            {rowData.seller.substring(
+                              rowData.seller.length - 4,
+                            )}
+                          </div>
+                        </Tooltip>
+                      ),
                     },
                   ]}
                   actions={[
@@ -415,7 +427,8 @@ ViewEventPage.propTypes = {
   onPushTicket: PropTypes.func,
   onChangeTicket: PropTypes.func,
   onChangeModalIsOpen: PropTypes.func,
-  onChangeTransactionFee: PropTypes.func,
+  // onChangeTransactionFee: PropTypes.func,
+  onCopySuccess: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -454,6 +467,7 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeModalIsOpen(modalIsOpen)),
     onChangeTransactionFee: transactionFee =>
       dispatch(changeTransactionFee(transactionFee)),
+    onCopySuccess: () => dispatch(copySuccess()),
   };
 }
 

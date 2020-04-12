@@ -12,9 +12,11 @@ import {
   LOGIN_METAMASK,
   LOGIN_SUCCESS,
   LOGIN_ERROR,
+  COPY_SUCCESS,
 } from './constants';
 
 let loginToastId = null;
+let copySuccessId = null;
 
 export function loginSuccess(res) {
   toast.dismiss(loginToastId);
@@ -70,5 +72,16 @@ export function changeSidebarOpen(sidebarOpen) {
 export function loginMetamask() {
   return {
     type: LOGIN_METAMASK,
+  };
+}
+
+export function copySuccess() {
+  toast.dismiss(copySuccessId);
+  copySuccessId = null;
+  toast.success('Address copied to clipboard!', {
+    containerId: 'default',
+  });
+  return {
+    type: COPY_SUCCESS,
   };
 }
