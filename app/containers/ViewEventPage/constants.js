@@ -12,6 +12,7 @@ export const BUY_TICKET_BACKEND_SUCCESS =
   'app/ViewEventPage/BUY_TICKET_BACKEND_SUCCESS';
 export const BUY_TICKET_BACKEND_ERROR =
   'app/ViewEventPage/BUY_TICKET_BACKEND_ERROR';
+export const PROMPT_LOGIN = 'app/ViewEventPage/PROMPT_LOGIN';
 export const CHANGE_TICKETCHAIN_ADDRESS =
   'app/ViewEventPage/CHANGE_TICKETCHAIN_ADDRESS';
 export const CHANGE_NAME = 'app/ViewEventPage/CHANGE_NAME';
