@@ -79,7 +79,6 @@ export function ViewMyTicketPage(props) {
     } else {
       window.alert('Please install and enable MetaMask to continue.');
     }
-
   }, []);
 
   const populateEventId = async () => {

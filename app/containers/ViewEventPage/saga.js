@@ -20,7 +20,7 @@ export function* loadEvent() {
 
   const requestURL = `${
     process.env.BACKEND_API_URL
-    }/eventOrganiser/address/${address}`;
+  }/eventOrganiser/address/${address}`;
 
   try {
     const res = yield call(request, requestURL, {
@@ -47,9 +47,9 @@ export function* buyTicketBackend() {
   const requestURL = `${process.env.BACKEND_API_URL}/ticket/buyTicket`;
   const requestURL2 = `${process.env.BACKEND_API_URL}/ticket/ticketId/${
     ticket.ticketId
-    }/eventId/${eventId}`;
+  }/eventId/${eventId}`;
 
-    console.log(ownerAddresses[0])
+  console.log(ownerAddresses[0]);
   try {
     const res = yield call(request, requestURL, {
       method: 'POST',
