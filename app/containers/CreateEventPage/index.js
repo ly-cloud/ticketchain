@@ -131,10 +131,7 @@ export function CreateEventPage(props) {
       } else if (!dateTime.isAfter(startSale)) {
         message = 'The date time of the event is before the Start of Sale';
       } else if (!dateTime.isAfter(endSale)) {
-        message = 'The date time of the event is before the Start of Sale';
-      } else if (!dateTimeValid) {
-        message =
-          'The date time of the event is before the both Start of Sale and End of Sale';
+        message = 'The date time of the event is before the End of Sale';
       }
       toast.dismiss(toastId);
       toastId = null;
@@ -150,7 +147,7 @@ export function CreateEventPage(props) {
     <React.Fragment>
       <Helmet>
         <title>TicketChain - Create Event</title>
-        <meta name="description" content="Login page" />
+        <meta name="description" content="TicketChain CreateEventPage" />
       </Helmet>
       <Container component="main" maxWidth="sm">
         <CssBaseline />

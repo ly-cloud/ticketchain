@@ -127,7 +127,7 @@ export function ManageEventPage({
     <div>
       <Helmet>
         <title>TicketChain - Manage Events</title>
-        <meta name="description" content="Manage created events" />
+        <meta name="description" content="TicketChain ManageEventPage" />
       </Helmet>
       <CssBaseline />
       <div className={classes.title}>

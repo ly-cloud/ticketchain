@@ -97,6 +97,7 @@ export function HomePage(props) {
           TicketChain.abi,
           networkData.address,
         );
+
         // Retrieve total number of events in TicketChain contract
         const numEvents = await ticketChainInstance.methods
           .getTotalEvents()
