@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.5;
 
 import './EventTicket.sol';
 
@@ -23,19 +23,25 @@ contract TicketChain {
   }
 
   modifier onlyOwner() {
-    require(msg.sender == OWNER, "Sender not OWNER.");
+    require(msg.sender == OWNER, 'Only callable by contract owner');
     _;
   }
 
   modifier validEvent(uint256 eventId) {
-    require(eventId <= eventIdCounter, "EventId not valid.");
+    require(eventId <= eventIdCounter, 'Invalid Event ID');
     _;
   }
 
   modifier onlyTicketOwner(uint256 eventId, uint256 ticketId) {
     EventTicket eventTicket = events[eventId];
-    require(msg.sender == eventTicket.getPrevOwner(ticketId), "Sender not ticket owner.");
-    require(address(this) == eventTicket.getCurrOwner(ticketId), "ticket not listed on TicketChain.");
+    require(
+      msg.sender == eventTicket.getPrevOwner(ticketId),
+      'Only callable by original ticket owner'
+    );
+    require(
+      address(this) == eventTicket.getCurrOwner(ticketId),
+      'Ticket not transferred TicketChain'
+    );
     _;
   }
 
@@ -49,7 +55,10 @@ contract TicketChain {
 
   function newEvent() public returns (uint256 eventId) {
     EventTicket etContract = EventTicket(msg.sender);
-    require(etContract.isEventTicket(), "EventId does not belong to any Event");
+    require(
+      etContract.isEventTicket(),
+      'Only callable by EventTicket contract'
+    );
     eventIdCounter++;
     events[eventIdCounter] = etContract;
     return eventIdCounter;
@@ -61,9 +70,15 @@ contract TicketChain {
     uint256 price,
     uint256 seatNumber
   ) public validEvent(eventId) onlyTicketOwner(eventId, ticketId) {
-    require(!ticketsListing[eventId][ticketId].listed, "Ticket is listed.");
+    require(
+      !ticketsListing[eventId][ticketId].listed,
+      'Ticket is already listed'
+    );
     EventTicket eventTicket = events[eventId];
-    require(price <= eventTicket.getOriginalPrice(ticketId), "New price is above original price.");
+    require(
+      price <= eventTicket.getOriginalPrice(ticketId),
+      'Cannot list above original price'
+    );
 
     Listing memory newListing = Listing(msg.sender, price, true, seatNumber);
     ticketsListing[eventId][ticketId] = newListing;
@@ -74,9 +89,12 @@ contract TicketChain {
     validEvent(eventId)
     onlyTicketOwner(eventId, ticketId)
   {
-    require(ticketsListing[eventId][ticketId].listed, "Ticket is not listed.");
+    require(ticketsListing[eventId][ticketId].listed, 'Ticket is not listed');
     EventTicket eventTicket = events[eventId];
-    require(newPrice <= eventTicket.getOriginalPrice(ticketId), "New price is above original price.");
+    require(
+      newPrice <= eventTicket.getOriginalPrice(ticketId),
+      'Cannot list above original price'
+    );
 
     ticketsListing[eventId][ticketId].price = newPrice;
   }
@@ -96,12 +114,20 @@ contract TicketChain {
     payable
     validEvent(eventId)
   {
-    require(ticketsListing[eventId][ticketId].listed, "Ticket is not listed.");
+    require(ticketsListing[eventId][ticketId].listed, 'Ticket is not listed');
     EventTicket eventTicket = events[eventId];
-    require(msg.value >= ticketsListing[eventId][ticketId].price, "msg.value is not sufficient");
-    require( now >= eventTicket.openSaleTime() && now < eventTicket.closingSaleTime(), "Not within sale time" );
+    require(
+      msg.value >= ticketsListing[eventId][ticketId].price,
+      'Payment insufficient'
+    );
+    require(
+      now >= eventTicket.openSaleTime() && now < eventTicket.closingSaleTime(),
+      'Ticket not on sale'
+    );
 
-    address payable recipient = address(uint160(eventTicket.getPrevOwner(ticketId)));
+    address payable recipient = address(
+      uint160(eventTicket.getPrevOwner(ticketId))
+    );
 
     delete ticketsListing[eventId][ticketId];
     eventTicket.transferTo(ticketId, msg.sender);
@@ -112,15 +138,19 @@ contract TicketChain {
     return eventIdCounter;
   }
 
-  function getCommission() public view returns(uint256) {
+  function getCommission() public view returns (uint256) {
     return commission;
   }
 
-  function eventExists(uint256 eventId) public view returns(bool){
+  function eventExists(uint256 eventId) public view returns (bool) {
     return eventId <= eventIdCounter;
   }
 
-  function getPrice(uint256 eventId, uint256 ticketId) public view returns(uint256) {
+  function getPrice(uint256 eventId, uint256 ticketId)
+    public
+    view
+    returns (uint256)
+  {
     return ticketsListing[eventId][ticketId].price;
   }
 
