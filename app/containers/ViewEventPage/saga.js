@@ -49,7 +49,6 @@ export function* buyTicketBackend() {
     ticket.ticketId
   }/eventId/${eventId}`;
 
-  console.log(ownerAddresses[0]);
   try {
     const res = yield call(request, requestURL, {
       method: 'POST',
