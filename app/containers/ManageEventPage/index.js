@@ -276,7 +276,7 @@ export function ManageEventPage({
                     {event.description}
                   </Typography>
                   <Typography variant="subtitle1">
-                    Current Balance: {event.balance} eth
+                    Current Balance: {event.balance} ETH
                   </Typography>
                 </CardContent>
                 <CardActions>
