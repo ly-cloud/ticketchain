@@ -181,13 +181,14 @@ export function ViewMyTicketPage(props) {
               InputLabelProps={{
                 shrink: true,
               }}
+              value={price}
               onChange={onChangePrice}
             />
             <TextField
               value={Web3.utils.fromWei(price.toString(), 'ether')}
               multiline
               label="Price in Eth"
-              type="number"
+              type="string"
               disabled
               InputLabelProps={{
                 shrink: true,
@@ -220,7 +221,7 @@ ViewMyTicketPage.propTypes = {
   match: PropTypes.object,
   tickets: PropTypes.arrayOf(Object),
   listModal: PropTypes.bool,
-  price: PropTypes.number,
+  price: PropTypes.string,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -229,12 +230,19 @@ const mapStateToProps = createStructuredSelector({
   price: makeSelectPrice(),
 });
 
+const regexInteger = new RegExp('^[0-9]+$|^$');
+
 function mapDispatchToProps(dispatch) {
   return {
     onLoadEventId: eventId => dispatch(loadEventId(eventId)),
     onOpenListModal: state => dispatch(toggleListModal(state)),
     onCloseListModal: state => dispatch(toggleListModal(state)),
-    onChangePrice: evt => dispatch(changePrice(evt.target.value)),
+    onChangePrice: evt => {
+      if (!regexInteger.test(evt.target.value)) {
+        return;
+      }
+      dispatch(changePrice(evt.target.value));
+    },
     onLoadTicket: ticket => dispatch(loadTicket(ticket)),
     onListTicket: () => dispatch(listTicket()),
     onUnlistTicket: () => dispatch(unlistTicket()),

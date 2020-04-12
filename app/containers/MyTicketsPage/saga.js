@@ -48,9 +48,6 @@ export function* loadAllTicketsOwned() {
     };
     events.push(eventObj);
   }
-
-  console.log(events);
-
   yield put(loadedEvents(events));
 }
 
