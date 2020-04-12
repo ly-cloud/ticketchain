@@ -1,4 +1,5 @@
 import { takeLatest, select, cps, call, put } from 'redux-saga/effects';
+import { push } from 'connected-react-router';
 import Web3 from 'web3';
 import request from 'utils/request';
 import Moment from 'moment';
@@ -96,6 +97,7 @@ export function* createEvent() {
     });
     yield put(clearForm());
     yield put(loginSuccess(res));
+    yield put(push('/manageEvent'));
   } catch (err) {
     yield put(loginError(err.data));
   }
