@@ -53,6 +53,7 @@ import {
   loadAccounts,
   changeOnWeb3Provider,
   changeSidebarOpen,
+  copySuccess,
 } from './actions';
 
 const drawerWidth = 240;
@@ -94,6 +95,7 @@ export function App(props) {
     onLoadAccounts,
     onChangeWeb3Provider,
     onChangeSidebarOpen,
+    onCopySuccess,
   } = props;
 
   // Check if user has Metamask on browsr
@@ -166,6 +168,7 @@ export function App(props) {
         sidebarOpen={sidebarOpen}
         onHandleMetamaskLogin={loadWeb3}
         onChangeSidebarOpen={onChangeSidebarOpen}
+        onCopySuccess={onCopySuccess}
       />
       <ToastContainer
         enableMultiContainer
@@ -238,6 +241,7 @@ App.propTypes = {
   onLoadNetworkId: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
   onChangeSidebarOpen: PropTypes.func,
+  onCopySuccess: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -255,6 +259,9 @@ function mapDispatchToProps(dispatch) {
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
     onChangeSidebarOpen: sidebarOpen => {
       dispatch(changeSidebarOpen(sidebarOpen));
+    },
+    onCopySuccess: () => {
+      dispatch(copySuccess());
     },
   };
 }

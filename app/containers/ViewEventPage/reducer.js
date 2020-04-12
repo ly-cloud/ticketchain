@@ -51,12 +51,12 @@ const viewEventPageReducer = (state = initialState, action) =>
         draft.closingSaleTime = null;
         draft.address = action.address;
         break;
-      case BUY_TICKET_BACKEND:
-        draft.eventId = action.eventId;
-        break;
       case LOAD_EVENT_SUCCESS:
         draft.description = action.event.description;
         draft.imageUrl = action.event.imageUrl;
+        break;
+      case BUY_TICKET_BACKEND:
+        draft.eventId = action.eventId;
         break;
       case CHANGE_TICKETCHAIN_ADDRESS:
         draft.ticketChainAddress = action.ticketChainAddress;

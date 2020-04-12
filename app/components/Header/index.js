@@ -6,7 +6,14 @@
 
 import React from 'react';
 import clsx from 'clsx';
-import { AppBar, Toolbar, IconButton, Button, Box } from '@material-ui/core';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Button,
+  Box,
+  Tooltip,
+} from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import Identicon from 'identicon.js';
 import Typography from '@material-ui/core/Typography';
@@ -49,7 +56,7 @@ const useStyles = makeStyles(theme => ({
 
 function Header(props) {
   const { account, sidebarOpen } = props;
-  const { onHandleMetamaskLogin, onChangeSidebarOpen } = props;
+  const { onHandleMetamaskLogin, onChangeSidebarOpen, onCopySuccess } = props;
   const classes = useStyles();
 
   return (
@@ -93,38 +100,47 @@ function Header(props) {
         </Typography>
         <section className={classes.rightToolbar}>
           {account ? (
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
+            <Tooltip
+              title={account}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                navigator.clipboard.writeText(account);
+                onCopySuccess();
+              }}
             >
-              <Box mt={0.75} mr={1}>
-                <img
-                  width="20"
-                  height="20"
-                  src={`data:image/png;base64,${new Identicon(
-                    account,
-                    10,
-                  ).toString()}`}
-                  alt="Identicon"
-                />
+              <Box
+                display="flex"
+                flexDirection="row"
+                justifyContent="space-between"
+              >
+                <Box mt={0.75} mr={1}>
+                  <img
+                    width="20"
+                    height="20"
+                    src={`data:image/png;base64,${new Identicon(
+                      account,
+                      10,
+                    ).toString()}`}
+                    alt="Identicon"
+                  />
+                </Box>
+                <Box mt={0.5} mr={2}>
+                  <Text
+                    fontWeight={600}
+                    fontSize="12px"
+                    color="#FFFFFF"
+                    lineHeight={1}
+                  >
+                    Connected as
+                  </Text>
+                  <Text fontSize={1} color="#FFFFFF">
+                    {`${account.substring(0, 6)}...${account.substring(
+                      account.length - 4,
+                    )}`}
+                  </Text>
+                </Box>
               </Box>
-              <Box mt={0.5} mr={2}>
-                <Text
-                  fontWeight={600}
-                  fontSize="12px"
-                  color="#FFFFFF"
-                  lineHeight={1}
-                >
-                  Connected as
-                </Text>
-                <Text fontSize={1} color="#FFFFFF">
-                  {`${account.substring(0, 6)}...${account.substring(
-                    account.length - 4,
-                  )}`}
-                </Text>
-              </Box>
-            </Box>
+            </Tooltip>
           ) : (
             <Button
               color="default"
@@ -146,6 +162,7 @@ Header.propTypes = {
   sidebarOpen: PropTypes.bool,
   onHandleMetamaskLogin: PropTypes.func,
   onChangeSidebarOpen: PropTypes.func,
+  onCopySuccess: PropTypes.func,
 };
 
 export default Header;
