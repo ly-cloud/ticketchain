@@ -7,6 +7,7 @@ import produce from 'immer';
 import {
   LOAD_ACCOUNTS,
   LOAD_NETWORKID,
+  CHANGE_OWNER,
   CHANGE_ONWEB3PROVIDER,
   CHANGE_SIDEBAR_OPEN,
 } from './constants';
@@ -27,6 +28,9 @@ const appReducer = (state = initialState, action) =>
         break;
       case LOAD_NETWORKID:
         draft.networkId = action.networkId;
+        break;
+      case CHANGE_OWNER:
+        draft.owner = action.owner;
         break;
       case CHANGE_ONWEB3PROVIDER:
         draft.onWeb3Provider = action.onWeb3Provider;
