@@ -71,7 +71,14 @@ export function ViewMyTicketPage(props) {
   } = props;
 
   useEffect(() => {
-    populateEventId();
+    if (window.ethereum.selectedAddress) {
+      populateEventId();
+      window.ethereum.on('accountsChanged', () => {
+        populateEventId();
+      });
+    } else {
+      window.alert('Please install and enable MetaMask to continue.');
+    }
   }, []);
 
   const populateEventId = async () => {
@@ -101,7 +108,7 @@ export function ViewMyTicketPage(props) {
         <title>My Tickets</title>
         <meta name="description" content="MyTickets Page" />
       </Helmet>
-      <Container component="main" maxWidth="m" className={classes.table}>
+      <Container component="main" maxWidth="lg" className={classes.table}>
         <MaterialTable
           localization={{
             header: {

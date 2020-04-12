@@ -61,7 +61,14 @@ export function MyTicketsPage(props) {
   useInjectSaga({ key: 'myTicketsPage', saga });
 
   useEffect(() => {
-    onLoadTickets();
+    if (window.ethereum.selectedAddress) {
+      onLoadTickets();
+      window.ethereum.on('accountsChanged', () => {
+        onLoadTickets();
+      });
+    } else {
+      window.alert('Please install and enable MetaMask to continue.');
+    }
   }, []);
 
   const { onLoadTickets } = props;

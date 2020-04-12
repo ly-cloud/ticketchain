@@ -91,7 +91,7 @@ export function* listTicket() {
       yield ticketChainInstance.methods
         .list(eventId, ticket.ticketId, price, ticket.seatNumber)
         .send({ from: address });
-      // Change ticket in offchain current owner to ticketChain's address
+      // Change ticket to delist
       const requestURL = `${process.env.BACKEND_API_URL}/ticket/ticketId/${
         ticket.ticketId
       }/eventId/${eventId}`;
