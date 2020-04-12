@@ -12,6 +12,7 @@ import {
   BUY_TICKET_BACKEND,
   BUY_TICKET_BACKEND_SUCCESS,
   BUY_TICKET_BACKEND_ERROR,
+  PROMPT_LOGIN,
   CHANGE_TICKETCHAIN_ADDRESS,
   CHANGE_NAME,
   CHANGE_DATETIME,
@@ -26,6 +27,7 @@ import {
 } from './constants';
 let loadEventToastId = null;
 let buyTicketBackendToastId = null;
+let promptLoginToastId = null;
 
 export function loadEvent(address) {
   return {
@@ -78,6 +80,17 @@ export function buyTicketBackendError(error) {
   });
   return {
     type: BUY_TICKET_BACKEND_ERROR,
+  };
+}
+
+export function promptLogin() {
+  toast.dismiss(promptLoginToastId);
+  promptLoginToastId = null;
+  toast.warning('Please login to use this feature', {
+    containerId: 'default',
+  });
+  return {
+    type: PROMPT_LOGIN,
   };
 }
 

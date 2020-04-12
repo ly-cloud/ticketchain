@@ -152,8 +152,12 @@ export function App(props) {
   // Event that notifies whenever the account/address in metamask change
   if (window.ethereum) {
     window.ethereum.on('accountsChanged', newAccounts => {
-      const accountConverted = Web3.utils.toChecksumAddress(newAccounts[0]);
-      onLoadAccounts([accountConverted]);
+      if (newAccounts.length > 0) {
+        const accountConverted = Web3.utils.toChecksumAddress(newAccounts[0]);
+        onLoadAccounts([accountConverted]);
+      } else {
+        onLoadAccounts([]);
+      }
     });
   }
 

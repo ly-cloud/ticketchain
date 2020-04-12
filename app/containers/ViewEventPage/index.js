@@ -50,6 +50,7 @@ import {
   changeTicket,
   changeModalIsOpen,
   changeTransactionFee,
+  promptLogin,
 } from './actions';
 import { makeSelectAccounts } from '../App/selectors';
 import reducer from './reducer';
@@ -136,6 +137,7 @@ export function ViewEventPage(props) {
     onChangeModalIsOpen,
     // onChangeTransactionFee,
     onCopySuccess,
+    onPromptLogin,
   } = props;
   const currentTime = new Date();
   useInjectReducer({ key: 'viewEventPage', reducer });
@@ -380,9 +382,13 @@ export function ViewEventPage(props) {
                       icon: 'shopping_cart',
                       tooltip: 'Buy ticket',
                       onClick: (event, rowData) => {
-                        onChangeTicket(rowData);
-                        onChangeModalIsOpen(true);
-                        buyTicket(rowData.ticketId, rowData.price);
+                        if (!accounts[0]) {
+                          onPromptLogin();
+                        } else {
+                          onChangeTicket(rowData);
+                          onChangeModalIsOpen(true);
+                          buyTicket(rowData.ticketId, rowData.price);
+                        }
                       },
                     },
                   ]}
@@ -429,6 +435,7 @@ ViewEventPage.propTypes = {
   onChangeModalIsOpen: PropTypes.func,
   // onChangeTransactionFee: PropTypes.func,
   onCopySuccess: PropTypes.func,
+  onPromptLogin: PropTypes.func,
 };
 
 const mapStateToProps = createStructuredSelector({
@@ -468,6 +475,7 @@ function mapDispatchToProps(dispatch) {
     onChangeTransactionFee: transactionFee =>
       dispatch(changeTransactionFee(transactionFee)),
     onCopySuccess: () => dispatch(copySuccess()),
+    onPromptLogin: () => dispatch(promptLogin()),
   };
 }
 
