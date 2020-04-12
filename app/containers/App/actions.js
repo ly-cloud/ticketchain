@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import {
   LOAD_ACCOUNTS,
   LOAD_NETWORKID,
+  CHANGE_OWNER,
   CHANGE_ONWEB3PROVIDER,
   CHANGE_SIDEBAR_OPEN,
   LOGIN_METAMASK,
@@ -52,6 +53,13 @@ export function loadNetworkId(networkId) {
   return {
     type: LOAD_NETWORKID,
     networkId,
+  };
+}
+
+export function changeOwner(owner) {
+  return {
+    type: CHANGE_OWNER,
+    owner,
   };
 }
 

@@ -40,12 +40,13 @@ import ConnectionBanner from '@rimble/connection-banner';
 import reducer from './reducer';
 import saga from './saga';
 // Import ABIs
-// import TicketChain from '../../../build/contracts/TicketChain.json';
+import TicketChain from '../../../build/contracts/TicketChain.json';
 
 import GlobalStyle from '../../global-styles';
 import {
   makeSelectAccounts,
   makeSelectNetworkId,
+  makeSelectOwner,
   makeSelectOnWeb3Provider,
   makeSelectSidebarOpen,
 } from './selectors';
@@ -55,6 +56,7 @@ import {
   changeOnWeb3Provider,
   changeSidebarOpen,
   copySuccess,
+  changeOwner,
 } from './actions';
 
 const drawerWidth = 240;
@@ -90,10 +92,11 @@ export function App(props) {
     checkMetamaskSupport();
   }, []);
 
-  const { networkId, accounts, onWeb3Provider, sidebarOpen } = props;
+  const { networkId, accounts, owner, onWeb3Provider, sidebarOpen } = props;
   const {
     onLoadNetworkId,
     onLoadAccounts,
+    onChangeOwner,
     onChangeWeb3Provider,
     onChangeSidebarOpen,
     onCopySuccess,
@@ -112,6 +115,22 @@ export function App(props) {
         onLoadNetworkId(currentNetworkId);
         const currentAccounts = await web3.eth.getAccounts();
         onLoadAccounts(currentAccounts);
+        const networkData = TicketChain.networks[currentNetworkId];
+        if (networkData) {
+          // Retrieve instance of TicketChain contract
+          const ticketChainInstance = new web3.eth.Contract(
+            TicketChain.abi,
+            networkData.address,
+          );
+
+          // Retrieve TicketChain Owner's address
+          const ownerAddress = await ticketChainInstance.methods.OWNER().call();
+
+          // Save TicketChain Owner's address in store
+          onChangeOwner(ownerAddress);
+        } else {
+          // window.alert('TicketChain contract not deployed to detected network.');
+        }
       }
     }
   };
@@ -125,6 +144,22 @@ export function App(props) {
       onLoadNetworkId(currentNetworkId);
       const currentAccounts = await web3.eth.getAccounts();
       onLoadAccounts(currentAccounts);
+      const networkData = TicketChain.networks[networkId];
+      if (networkData) {
+        // Retrieve instance of TicketChain contract
+        const ticketChainInstance = new web3.eth.Contract(
+          TicketChain.abi,
+          networkData.address,
+        );
+
+        // Retrieve TicketChain Owner's address
+        const ownerAddress = await ticketChainInstance.methods.OWNER().call();
+
+        // Save TicketChain Owner's address in store
+        onChangeOwner(ownerAddress);
+      } else {
+        // window.alert('TicketChain contract not deployed to detected network.');
+      }
     } else if (window.web3) {
       window.web3 = await new Web3(window.web3.currentProvider);
     } else {
@@ -166,6 +201,8 @@ export function App(props) {
   return (
     <div className={classes.container}>
       <Sidebar
+        account={accounts[0]}
+        owner={owner}
         sidebarOpen={sidebarOpen}
         onChangeSidebarOpen={onChangeSidebarOpen}
       />
@@ -208,7 +245,9 @@ export function App(props) {
         />
         <Switch>
           <Route exact path="/" component={HomePage} />
-          <Route exact path="/owner" component={OwnerPage} />
+          {accounts.length > 0 && accounts[0] === owner && (
+            <Route exact path="/owner" component={OwnerPage} />
+          )}
           <Route exact path="/manageEvent" component={ManageEventPage} />
           <Route exact path="/createEvent" component={CreateEventPage} />
           <Route exact path="/myTickets" component={MyTicketsPage} />
@@ -242,10 +281,12 @@ export function App(props) {
 App.propTypes = {
   networkId: PropTypes.number,
   accounts: PropTypes.arrayOf(String),
+  owner: PropTypes.string,
   onWeb3Provider: PropTypes.bool,
   sidebarOpen: PropTypes.bool,
   onLoadAccounts: PropTypes.func,
   onLoadNetworkId: PropTypes.func,
+  onChangeOwner: PropTypes.func,
   onChangeWeb3Provider: PropTypes.func,
   onChangeSidebarOpen: PropTypes.func,
   onCopySuccess: PropTypes.func,
@@ -254,6 +295,7 @@ App.propTypes = {
 const mapStateToProps = createStructuredSelector({
   networkId: makeSelectNetworkId(),
   accounts: makeSelectAccounts(),
+  owner: makeSelectOwner(),
   onWeb3Provider: makeSelectOnWeb3Provider(),
   sidebarOpen: makeSelectSidebarOpen(),
 });
@@ -262,6 +304,7 @@ function mapDispatchToProps(dispatch) {
   return {
     onLoadAccounts: accounts => dispatch(loadAccounts(accounts)),
     onLoadNetworkId: networkId => dispatch(loadNetworkId(networkId)),
+    onChangeOwner: owner => dispatch(changeOwner(owner)),
     onChangeWeb3Provider: onWeb3Provider =>
       dispatch(changeOnWeb3Provider(onWeb3Provider)),
     onChangeSidebarOpen: sidebarOpen => {

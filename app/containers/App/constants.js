@@ -11,7 +11,8 @@
 
 export const LOAD_ACCOUNTS = 'app/App/LOAD_ACCOUNTS';
 export const LOAD_NETWORKID = 'app/App/LOAD_NETWORKID';
-export const CHANGE_ONWEB3PROVIDER = 'app/App/ON_WEB3PROVIDER';
+export const CHANGE_OWNER = 'app/App/CHANGE_OWNER';
+export const CHANGE_ONWEB3PROVIDER = 'app/App/CHANGE_ONWEB3PROVIDER';
 export const CHANGE_SIDEBAR_OPEN = 'app/App/CHANGE_SIDEBAR_OPEN';
 export const LOGIN_METAMASK = 'app/App/LOGIN_METAMASK';
 export const LOGIN_SUCCESS = 'app/App/LOGIN_SUCCESS';

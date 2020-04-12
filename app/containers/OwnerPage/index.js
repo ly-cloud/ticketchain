@@ -92,12 +92,12 @@ export function OwnerPage({
   return (
     <div>
       <Helmet>
-        <title>TicketChain - Owner Page</title>
-        <meta name="description" content="TicketChain OwnerPage" />
+        <title>TicketChain - Settings</title>
+        <meta name="description" content="TicketChain Settings" />
       </Helmet>
       <CssBaseline />
       <div className={classes.title}>
-        <Typography variant="h3">TicketChain Owner</Typography>
+        <Typography variant="h3">TicketChain Settings</Typography>
       </div>
       <Backdrop className={classes.backdrop} open={loading}>
         <CircularProgress />

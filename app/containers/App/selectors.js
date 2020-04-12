@@ -23,6 +23,12 @@ const makeSelectNetworkId = () =>
     substate => substate.networkId,
   );
 
+const makeSelectOwner = () =>
+  createSelector(
+    selectAppDomain,
+    substate => substate.owner,
+  );
+
 const makeSelectOnWeb3Provider = () =>
   createSelector(
     selectAppDomain,
@@ -38,6 +44,7 @@ const makeSelectSidebarOpen = () =>
 export {
   makeSelectLocation,
   makeSelectAccounts,
+  makeSelectOwner,
   makeSelectNetworkId,
   makeSelectOnWeb3Provider,
   makeSelectSidebarOpen,

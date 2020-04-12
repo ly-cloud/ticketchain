@@ -52,13 +52,13 @@ import {
   changeTransactionFee,
   promptLogin,
 } from './actions';
+import { copySuccess } from '../App/actions';
 import { makeSelectAccounts } from '../App/selectors';
 import reducer from './reducer';
 import saga from './saga';
 // Import ABIs
 import TicketChain from '../../../build/contracts/TicketChain.json';
 import EventTicket from '../../../build/contracts/EventTicket.json';
-import { copySuccess } from '../App/actions';
 
 const useStyles = makeStyles(theme => ({
   imageContent: {

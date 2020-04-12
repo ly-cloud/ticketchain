@@ -18,6 +18,7 @@ import {
 import AddIcon from '@material-ui/icons/AddBox';
 import EventIcon from '@material-ui/icons/Event';
 import TicketIcon from '@material-ui/icons/ConfirmationNumber';
+import SettingsIcon from '@material-ui/icons/Settings';
 import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 const drawerWidth = 240;
@@ -33,7 +34,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function Sidebar(props) {
-  const { sidebarOpen, onChangeSidebarOpen } = props;
+  const { account, owner, sidebarOpen, onChangeSidebarOpen } = props;
   const classes = useStyles();
   return (
     <Drawer
@@ -45,6 +46,22 @@ function Sidebar(props) {
         paper: classes.drawerPaper,
       }}
     >
+      {account === owner && (
+        <List>
+          <ListItem
+            button
+            component={Link}
+            to="/owner"
+            key="TicketChain Settings"
+            onClick={() => onChangeSidebarOpen(false)}
+          >
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="TicketChain Settings" />
+          </ListItem>
+        </List>
+      )}
       <Divider />
       <List>
         <ListItem
@@ -92,6 +109,8 @@ function Sidebar(props) {
 }
 
 Sidebar.propTypes = {
+  account: PropTypes.string,
+  owner: PropTypes.string,
   sidebarOpen: PropTypes.bool,
   onChangeSidebarOpen: PropTypes.func,
 };
