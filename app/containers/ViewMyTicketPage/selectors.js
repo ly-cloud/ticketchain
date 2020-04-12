@@ -28,4 +28,29 @@ const makeSelectTickets = () =>
     substate => substate.tickets,
   );
 
-export { selectViewMyTicketPageDomain, makeSelectEventId, makeSelectTickets };
+const makeSelectListModal = () =>
+  createSelector(
+    selectViewMyTicketPageDomain,
+    substate => substate.listModal,
+  );
+
+const makeSelectPrice = () =>
+  createSelector(
+    selectViewMyTicketPageDomain,
+    substate => substate.price,
+  );
+
+const makeSelectListedTicket = () =>
+  createSelector(
+    selectViewMyTicketPageDomain,
+    substate => substate.ticketListed,
+  );
+
+export {
+  selectViewMyTicketPageDomain,
+  makeSelectEventId,
+  makeSelectTickets,
+  makeSelectListModal,
+  makeSelectPrice,
+  makeSelectListedTicket,
+};
