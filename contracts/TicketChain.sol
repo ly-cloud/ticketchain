@@ -65,7 +65,7 @@ contract TicketChain {
     EventTicket eventTicket = events[eventId];
     require(price <= eventTicket.getOriginalPrice(ticketId), "New price is above original price.");
 
-    Listing memory newListing = Listing(msg.sender, price, true, seatNumber);
+    Listing memory newListing = Listing(msg.sender, price + commission, true, seatNumber);
     ticketsListing[eventId][ticketId] = newListing;
   }
 
@@ -78,7 +78,7 @@ contract TicketChain {
     EventTicket eventTicket = events[eventId];
     require(newPrice <= eventTicket.getOriginalPrice(ticketId), "New price is above original price.");
 
-    ticketsListing[eventId][ticketId].price = newPrice;
+    ticketsListing[eventId][ticketId].price = newPrice + commission;
   }
 
   function unlist(uint256 eventId, uint256 ticketId)
@@ -122,6 +122,10 @@ contract TicketChain {
 
   function getPrice(uint256 eventId, uint256 ticketId) public view returns(uint256) {
     return ticketsListing[eventId][ticketId].price;
+  }
+
+  function getBalance() public view onlyOwner returns(uint256) {
+    return address(this).balance;
   }
 
   function() external payable {}

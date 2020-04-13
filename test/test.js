@@ -118,13 +118,13 @@ contract("TicketChain", accounts => {
       assert.equal(rsl.valueOf(), true);
       return chain.getPrice(1, 1);
      }).then((rsl1) => {
-      assert.equal(rsl1.valueOf(), originalPrice);
+      assert.equal(rsl1.valueOf(), originalPrice + commission);
       return chain.getPrice(1, 2);
     }).then((rsl2) => {
-      assert.equal(rsl2.valueOf(), originalPrice);
+      assert.equal(rsl2.valueOf(), originalPrice + commission);
       return chain.getPrice(1, 3);
     }).then((rsl3) => {
-      assert.equal(rsl3.valueOf(), originalPrice);
+      assert.equal(rsl3.valueOf(), originalPrice + commission);
     })
   );
 
@@ -197,7 +197,7 @@ contract("TicketChain", accounts => {
     .then(() => {
       return chain.getPrice.call(1, 1);
     }).then((rsl) => {
-      assert.equal(rsl.valueOf(), belowPrice, "Buyer A was not able to list ticket at below original price");
+      assert.equal(rsl.valueOf(), belowPrice + commission, "Buyer A was not able to list ticket at below original price");
     })
   );
 
@@ -235,7 +235,7 @@ contract("TicketChain", accounts => {
     }).then(() => {
       return chain.getPrice.call(1, 3);
     }).then((rsl) => {
-      assert.equal(rsl.valueOf(), originalPrice, "Buyer C was not able to list ticket at original price");
+      assert.equal(rsl.valueOf(), originalPrice + newCommission, "Buyer C was not able to list ticket at original price");
     })
   );
 
@@ -244,7 +244,7 @@ contract("TicketChain", accounts => {
     .then(() => {
       return chain.getPrice.call(1, 3);
     }).then((rsl) => {
-      assert.equal(rsl.valueOf(), belowPrice, "Buyer C was not able to list ticket at below original price");
+      assert.equal(rsl.valueOf(), belowPrice + newCommission, "Buyer C was not able to list ticket at below original price");
     })
   );
 
@@ -276,6 +276,38 @@ contract("TicketChain", accounts => {
       return event.getCurrOwner(3);
     }).then((rsl2) => {
       assert.equal(rsl2.valueOf(), 0);
+    })
+  );
+
+  it("Check if TicketChain's balance is not 0", () => 
+    chain.getBalance()
+    .then((rsl) => {
+      assert.notEqual(rsl.valueOf(), 0);
+    })
+  );
+
+  it("Owner of TicketChain withdraw commission", () => 
+    chain.withdraw()
+    .then(() => {
+      return chain.getBalance();
+    }).then((rsl) => {
+      assert.equal(rsl.valueOf(), 0);
+    })
+  );
+
+  it("Check if EventTicket's balance is not 0", () => 
+    event.getBalance()
+    .then((rsl) => {
+      assert.notEqual(rsl.valueOf(), 0);
+    })
+  );
+
+  it("Owner of EventTicket withdraw earnings", () => 
+    event.withdraw()
+    .then(() => {
+      return event.getBalance();
+    }).then((rsl) => {
+      assert.equal(rsl.valueOf(), 0);
     })
   );
 
