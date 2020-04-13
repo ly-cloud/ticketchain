@@ -80,7 +80,7 @@ contract TicketChain {
       'Cannot list above original price'
     );
 
-    Listing memory newListing = Listing(msg.sender, price, true, seatNumber);
+    Listing memory newListing = Listing(msg.sender, price + commission, true, seatNumber);
     ticketsListing[eventId][ticketId] = newListing;
   }
 
@@ -96,7 +96,7 @@ contract TicketChain {
       'Cannot list above original price'
     );
 
-    ticketsListing[eventId][ticketId].price = newPrice;
+    ticketsListing[eventId][ticketId].price = newPrice + commission;
   }
 
   function unlist(uint256 eventId, uint256 ticketId)
@@ -152,6 +152,10 @@ contract TicketChain {
     returns (uint256)
   {
     return ticketsListing[eventId][ticketId].price;
+  }
+
+  function getBalance() public view onlyOwner returns(uint256) {
+    return address(this).balance;
   }
 
   function() external payable {}
